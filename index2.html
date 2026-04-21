@@ -1,0 +1,3942 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedManage Pro | إدارة المستشفيات والمراكز الطبية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ===== CSS VARIABLES ===== */
+        :root {
+            --primary: #0a2647;
+            --primary-light: #144272;
+            --accent: #2C74B3;
+            --accent-light: #205295;
+            --gold: #d4a843;
+            --gold-light: #e8c36a;
+            --white: #ffffff;
+            --light-bg: #f0f4f8;
+            --text-dark: #1a1a2e;
+            --text-light: #6b7280;
+            --gradient-primary: linear-gradient(135deg, #0a2647 0%, #144272 50%, #205295 100%);
+            --gradient-gold: linear-gradient(135deg, #d4a843 0%, #e8c36a 100%);
+            --gradient-accent: linear-gradient(135deg, #2C74B3 0%, #205295 100%);
+            --shadow-sm: 0 2px 10px rgba(0,0,0,0.08);
+            --shadow-md: 0 10px 40px rgba(0,0,0,0.12);
+            --shadow-lg: 0 20px 60px rgba(0,0,0,0.15);
+            --shadow-gold: 0 10px 40px rgba(212,168,67,0.3);
+        }
+
+        /* ===== RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            color: var(--text-dark);
+            background: var(--white);
+            overflow-x: hidden;
+        }
+
+        /* ===== CUSTOM SCROLLBAR ===== */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--light-bg);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 10px;
+        }
+
+        /* ===== PRELOADER ===== */
+        .preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--primary);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+        }
+
+        .preloader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .preloader-logo {
+            font-size: 3rem;
+            color: var(--gold);
+            margin-bottom: 30px;
+            animation: pulse 1.5s infinite;
+        }
+
+        .preloader-bar {
+            width: 200px;
+            height: 3px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .preloader-bar::after {
+            content: '';
+            display: block;
+            width: 40%;
+            height: 100%;
+            background: var(--gold);
+            border-radius: 10px;
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(350%); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+        }
+
+        /* ===== NAVIGATION ===== */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 20px 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .navbar.scrolled {
+            background: rgba(10, 38, 71, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 12px 0;
+            box-shadow: 0 5px 30px rgba(0,0,0,0.2);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--white);
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-gold);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--primary);
+            transform: rotate(-5deg);
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover .logo-icon {
+            transform: rotate(0deg) scale(1.05);
+        }
+
+        .logo-text {
+            font-size: 1.4rem;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-text span {
+            color: var(--gold);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: rgba(255,255,255,0.85);
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--white);
+            background: rgba(255,255,255,0.1);
+        }
+
+        .nav-cta {
+            background: var(--gradient-gold) !important;
+            color: var(--primary) !important;
+            padding: 12px 28px !important;
+            font-weight: 700 !important;
+            box-shadow: var(--shadow-gold);
+        }
+
+        .nav-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(212,168,67,0.4) !important;
+        }
+
+        /* Mobile Menu Toggle */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            cursor: pointer;
+            padding: 10px;
+            z-index: 1001;
+        }
+
+        .menu-toggle span {
+            width: 28px;
+            height: 2px;
+            background: var(--white);
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .menu-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        .menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+        .menu-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+
+        /* ===== HERO SECTION ===== */
+        .hero {
+            min-height: 100vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            background: var(--primary);
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .hero-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at 20% 50%, rgba(44, 116, 179, 0.3) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(212, 168, 67, 0.15) 0%, transparent 40%),
+                radial-gradient(ellipse at 60% 80%, rgba(44, 116, 179, 0.2) 0%, transparent 40%);
+        }
+
+        /* Animated Grid Background */
+        .hero-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 80px 80px;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(80px, 80px); }
+        }
+
+        /* Floating Orbs */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: rgba(44, 116, 179, 0.2);
+            top: -100px;
+            right: -100px;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 300px;
+            height: 300px;
+            background: rgba(212, 168, 67, 0.15);
+            bottom: -50px;
+            left: 10%;
+            animation-delay: 2s;
+        }
+
+        .orb-3 {
+            width: 200px;
+            height: 200px;
+            background: rgba(44, 116, 179, 0.15);
+            top: 40%;
+            right: 20%;
+            animation-delay: 4s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-30px) scale(1.05); }
+        }
+
+        .hero-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+            width: 100%;
+        }
+
+        .hero-text {
+            color: var(--white);
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(212, 168, 67, 0.15);
+            border: 1px solid rgba(212, 168, 67, 0.3);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            color: var(--gold);
+            margin-bottom: 30px;
+            animation: fadeInUp 1s ease;
+        }
+
+        .hero-badge i {
+            animation: pulse 2s infinite;
+        }
+
+        .hero-title {
+            font-size: 3.8rem;
+            font-weight: 900;
+            line-height: 1.2;
+            margin-bottom: 25px;
+            animation: fadeInUp 1s ease 0.2s both;
+        }
+
+        .hero-title .highlight {
+            background: var(--gradient-gold);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-desc {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            color: rgba(255,255,255,0.75);
+            margin-bottom: 40px;
+            max-width: 520px;
+            animation: fadeInUp 1s ease 0.4s both;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            animation: fadeInUp 1s ease 0.6s both;
+        }
+
+        .btn {
+            padding: 16px 36px;
+            border-radius: 14px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--gradient-gold);
+            color: var(--primary);
+            box-shadow: var(--shadow-gold);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 50px rgba(212,168,67,0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--white);
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .btn-outline:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.6);
+            transform: translateY(-3px);
+        }
+
+        /* Hero Visual */
+        .hero-visual {
+            position: relative;
+            animation: fadeInUp 1s ease 0.8s both;
+        }
+
+        .hero-card-main {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 24px;
+            padding: 40px;
+            position: relative;
+        }
+
+        .hero-card-main::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 20%;
+            right: 20%;
+            height: 2px;
+            background: var(--gradient-gold);
+            border-radius: 2px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 25px;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            background: rgba(255,255,255,0.08);
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            font-size: 1.3rem;
+        }
+
+        .stat-item:nth-child(1) .stat-icon { background: rgba(212,168,67,0.2); color: var(--gold); }
+        .stat-item:nth-child(2) .stat-icon { background: rgba(44,116,179,0.2); color: var(--accent); }
+        .stat-item:nth-child(3) .stat-icon { background: rgba(16,185,129,0.2); color: #10b981; }
+        .stat-item:nth-child(4) .stat-icon { background: rgba(168,85,247,0.2); color: #a855f7; }
+
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--white);
+            line-height: 1;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.6);
+        }
+
+        /* Floating Cards */
+        .floating-card {
+            position: absolute;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 16px;
+            padding: 16px 22px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: float 4s ease-in-out infinite;
+            color: var(--white);
+        }
+
+        .floating-card-1 {
+            top: -20px;
+            right: -30px;
+            animation-delay: 1s;
+        }
+
+        .floating-card-2 {
+            bottom: -20px;
+            left: -30px;
+            animation-delay: 2.5s;
+        }
+
+        .floating-card .fc-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .floating-card-1 .fc-icon { background: rgba(16,185,129,0.3); color: #10b981; }
+        .floating-card-2 .fc-icon { background: rgba(212,168,67,0.3); color: var(--gold); }
+
+        .fc-text small {
+            display: block;
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.5);
+        }
+
+        .fc-text strong {
+            font-size: 0.9rem;
+        }
+
+        /* ===== SECTION STYLES ===== */
+        section {
+            padding: 120px 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .section-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(44, 116, 179, 0.08);
+            color: var(--accent);
+            padding: 8px 22px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            border: 1px solid rgba(44, 116, 179, 0.15);
+        }
+
+        .section-title {
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--primary);
+            margin-bottom: 18px;
+            line-height: 1.3;
+        }
+
+        .section-title span {
+            color: var(--gold);
+        }
+
+        .section-desc {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            max-width: 650px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        /* ===== ABOUT SECTION ===== */
+        .about {
+            background: var(--light-bg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .about::before {
+            content: '';
+            position: absolute;
+            top: -200px;
+            right: -200px;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(44,116,179,0.05) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+        }
+
+        .about-image {
+            position: relative;
+        }
+
+        .about-img-wrapper {
+            position: relative;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .about-img-wrapper img {
+            width: 100%;
+            height: 450px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .about-img-placeholder {
+            width: 100%;
+            height: 450px;
+            background: var(--gradient-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+        }
+
+        .about-img-placeholder i {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .about-img-placeholder p {
+            font-size: 1.2rem;
+            opacity: 0.7;
+        }
+
+        .about-experience {
+            position: absolute;
+            bottom: -20px;
+            left: -20px;
+            background: var(--gradient-gold);
+            color: var(--primary);
+            padding: 25px 30px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: var(--shadow-gold);
+        }
+
+        .about-experience .number {
+            font-size: 3rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .about-experience .text {
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .about-content h2 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--primary);
+            margin-bottom: 20px;
+            line-height: 1.3;
+        }
+
+        .about-content h2 span {
+            color: var(--gold);
+        }
+
+        .about-content > p {
+            color: var(--text-light);
+            line-height: 1.9;
+            margin-bottom: 35px;
+            font-size: 1.05rem;
+        }
+
+        .about-features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 35px;
+        }
+
+        .about-feature {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+        }
+
+        .about-feature:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .about-feature i {
+            width: 40px;
+            height: 40px;
+            background: rgba(212,168,67,0.15);
+            color: var(--gold);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .about-feature span {
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .vision-mission {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .vm-card {
+            padding: 25px;
+            border-radius: 16px;
+            border: 1px solid rgba(44,116,179,0.1);
+            background: var(--white);
+        }
+
+        .vm-card h4 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .vm-card h4 i {
+            color: var(--gold);
+        }
+
+        .vm-card p {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            line-height: 1.7;
+        }
+
+        /* ===== SERVICES SECTION ===== */
+        .services {
+            background: var(--white);
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .service-card {
+            background: var(--white);
+            border-radius: 24px;
+            padding: 40px 35px;
+            border: 1px solid rgba(0,0,0,0.06);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient-primary);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .service-card:hover::before {
+            opacity: 1;
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .service-card > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .service-card:hover .service-icon {
+            background: rgba(212,168,67,0.2);
+            color: var(--gold);
+        }
+
+        .service-card:hover h3,
+        .service-card:hover p,
+        .service-card:hover .service-features li {
+            color: var(--white);
+        }
+
+        .service-card:hover .service-features li i {
+            color: var(--gold);
+        }
+
+        .service-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 18px;
+            background: rgba(44,116,179,0.1);
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            transition: all 0.5s ease;
+        }
+
+        .service-card h3 {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 15px;
+            transition: color 0.5s ease;
+        }
+
+        .service-card > p {
+            color: var(--text-light);
+            line-height: 1.8;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+            transition: color 0.5s ease;
+        }
+
+        .service-features {
+            list-style: none;
+        }
+
+        .service-features li {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 0;
+            font-size: 0.9rem;
+            color: var(--text-light);
+            transition: color 0.5s ease;
+        }
+
+        .service-features li i {
+            color: var(--accent);
+            font-size: 0.7rem;
+            transition: color 0.5s ease;
+        }
+
+        /* ===== LOCATIONS SECTION ===== */
+        .locations {
+            background: var(--primary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .locations::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at 30% 50%, rgba(44, 116, 179, 0.2) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 80%, rgba(212, 168, 67, 0.1) 0%, transparent 40%);
+        }
+
+        .locations .section-tag {
+            background: rgba(212,168,67,0.15);
+            color: var(--gold);
+            border-color: rgba(212,168,67,0.3);
+        }
+
+        .locations .section-title {
+            color: var(--white);
+        }
+
+        .locations .section-desc {
+            color: rgba(255,255,255,0.6);
+        }
+
+        .locations-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 60px;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Egypt Map Visualization */
+        .egypt-map-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .map-visual {
+            width: 100%;
+            max-width: 450px;
+            position: relative;
+        }
+
+        .map-bg {
+            width: 100%;
+            height: 500px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .map-bg::before {
+            content: '🇪🇬';
+            font-size: 15rem;
+            opacity: 0.1;
+            position: absolute;
+        }
+
+        .map-pin {
+            position: absolute;
+            cursor: pointer;
+            z-index: 3;
+        }
+
+        .map-pin .pin-dot {
+            width: 16px;
+            height: 16px;
+            background: var(--gold);
+            border-radius: 50%;
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 0 0 4px rgba(212,168,67,0.3);
+            animation: pinPulse 2s infinite;
+        }
+
+        .map-pin .pin-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            border: 2px solid rgba(212,168,67,0.3);
+            border-radius: 50%;
+            animation: ringExpand 2s infinite;
+        }
+
+        @keyframes pinPulse {
+            0%, 100% { box-shadow: 0 0 0 4px rgba(212,168,67,0.3); }
+            50% { box-shadow: 0 0 0 8px rgba(212,168,67,0.1); }
+        }
+
+        @keyframes ringExpand {
+            0% { width: 16px; height: 16px; opacity: 1; }
+            100% { width: 50px; height: 50px; opacity: 0; }
+        }
+
+        .map-pin .pin-label {
+            position: absolute;
+            top: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--gold);
+            color: var(--primary);
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .map-pin:hover .pin-label {
+            opacity: 1;
+        }
+
+        /* Pin Positions (on the map visualization) */
+        .pin-cairo { top: 30%; left: 60%; }
+        .pin-alex { top: 15%; left: 40%; }
+        .pin-giza { top: 32%; left: 55%; }
+        .pin-hurghada { top: 50%; left: 70%; }
+        .pin-luxor { top: 60%; left: 55%; }
+        .pin-aswan { top: 75%; left: 50%; }
+        .pin-mansoura { top: 22%; left: 58%; }
+        .pin-tanta { top: 25%; left: 50%; }
+
+        /* Location Cards */
+        .locations-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .location-card {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 18px;
+            padding: 25px;
+            transition: all 0.4s ease;
+            cursor: pointer;
+        }
+
+        .location-card:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-5px);
+            border-color: rgba(212,168,67,0.3);
+        }
+
+        .location-card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 12px;
+        }
+
+        .location-card-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            background: rgba(212,168,67,0.15);
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .location-card-header h4 {
+            color: var(--white);
+            font-size: 1.05rem;
+        }
+
+        .location-card-header small {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.8rem;
+        }
+
+        .location-card p {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.85rem;
+            line-height: 1.7;
+        }
+
+        .location-card .facility-count {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 10px;
+            background: rgba(16,185,129,0.15);
+            color: #10b981;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        /* ===== TEAM SECTION ===== */
+        .team {
+            background: var(--light-bg);
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+        }
+
+        .team-card {
+            background: var(--white);
+            border-radius: 24px;
+            overflow: hidden;
+            text-align: center;
+            transition: all 0.4s ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .team-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .team-img {
+            width: 100%;
+            height: 280px;
+            background: var(--gradient-accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .team-img i {
+            font-size: 4rem;
+            color: rgba(255,255,255,0.3);
+        }
+
+        .team-img::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(transparent, rgba(0,0,0,0.3));
+        }
+
+        .team-info {
+            padding: 25px;
+        }
+
+        .team-info h4 {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .team-info .role {
+            color: var(--gold);
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .team-social {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .team-social a {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: var(--light-bg);
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .team-social a:hover {
+            background: var(--accent);
+            color: var(--white);
+        }
+
+        /* ===== PARTNERS SECTION ===== */
+        .partners {
+            background: var(--white);
+            padding: 80px 0;
+        }
+
+        .partners-track {
+            display: flex;
+            gap: 60px;
+            animation: scroll 30s linear infinite;
+        }
+
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .partners-slider {
+            overflow: hidden;
+            mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
+        }
+
+        .partner-item {
+            min-width: 180px;
+            height: 80px;
+            background: var(--light-bg);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-light);
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .partner-item:hover {
+            background: var(--white);
+            box-shadow: var(--shadow-md);
+            color: var(--primary);
+        }
+
+        /* ===== TESTIMONIALS ===== */
+        .testimonials {
+            background: var(--light-bg);
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .testimonial-card {
+            background: var(--white);
+            border-radius: 24px;
+            padding: 40px;
+            position: relative;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.4s ease;
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .testimonial-card::before {
+            content: '"';
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 5rem;
+            color: rgba(212,168,67,0.15);
+            font-family: serif;
+            line-height: 1;
+        }
+
+        .testimonial-stars {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+        }
+
+        .testimonial-stars i {
+            color: var(--gold);
+            font-size: 0.9rem;
+        }
+
+        .testimonial-card p {
+            color: var(--text-light);
+            line-height: 1.9;
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .testimonial-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 14px;
+            background: var(--gradient-accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 1.2rem;
+            font-weight: 800;
+        }
+
+        .testimonial-author h5 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .testimonial-author small {
+            color: var(--text-light);
+            font-size: 0.85rem;
+        }
+
+        /* ===== NEWS SECTION ===== */
+        .news {
+            background: var(--white);
+        }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .news-card {
+            border-radius: 24px;
+            overflow: hidden;
+            background: var(--white);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.4s ease;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .news-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .news-img {
+            height: 220px;
+            background: var(--gradient-primary);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .news-img i {
+            font-size: 3rem;
+            color: rgba(255,255,255,0.2);
+        }
+
+        .news-date {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--gold);
+            color: var(--primary);
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .news-content {
+            padding: 30px;
+        }
+
+        .news-tag {
+            display: inline-block;
+            background: rgba(44,116,179,0.1);
+            color: var(--accent);
+            padding: 4px 14px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .news-content h3 {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .news-content p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+
+        .news-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.9rem;
+            transition: gap 0.3s ease;
+        }
+
+        .news-link:hover {
+            gap: 12px;
+        }
+
+        /* ===== FAQ SECTION ===== */
+        .faq {
+            background: var(--light-bg);
+        }
+
+        .faq-grid {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            background: var(--white);
+            border-radius: 16px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(0,0,0,0.04);
+        }
+
+        .faq-question {
+            padding: 24px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .faq-question:hover {
+            background: rgba(44,116,179,0.02);
+        }
+
+        .faq-question h4 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .faq-question .faq-toggle {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: rgba(44,116,179,0.1);
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .faq-item.active .faq-toggle {
+            background: var(--accent);
+            color: var(--white);
+            transform: rotate(45deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+        }
+
+        .faq-answer p {
+            padding: 0 30px 24px;
+            color: var(--text-light);
+            line-height: 1.9;
+            font-size: 0.95rem;
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 300px;
+        }
+
+        /* ===== CTA SECTION ===== */
+        .cta {
+            background: var(--gradient-primary);
+            padding: 100px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at 20% 50%, rgba(212,168,67,0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 50%, rgba(44,116,179,0.2) 0%, transparent 50%);
+        }
+
+        .cta-content {
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .cta-content h2 {
+            font-size: 3rem;
+            color: var(--white);
+            font-weight: 900;
+            margin-bottom: 20px;
+        }
+
+        .cta-content h2 span {
+            color: var(--gold);
+        }
+
+        .cta-content p {
+            color: rgba(255,255,255,0.7);
+            font-size: 1.15rem;
+            max-width: 600px;
+            margin: 0 auto 40px;
+            line-height: 1.8;
+        }
+
+        .cta-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        /* ===== CONTACT SECTION ===== */
+        .contact {
+            background: var(--white);
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 60px;
+        }
+
+        .contact-info {
+            padding: 20px 0;
+        }
+
+        .contact-info h3 {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .contact-info h3 span {
+            color: var(--gold);
+        }
+
+        .contact-info > p {
+            color: var(--text-light);
+            line-height: 1.8;
+            margin-bottom: 35px;
+        }
+
+        .contact-details {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 35px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .contact-item-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 14px;
+            background: rgba(44,116,179,0.1);
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .contact-item-text h5 {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            font-weight: 600;
+        }
+
+        .contact-item-text p {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 12px;
+        }
+
+        .social-links a {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: var(--light-bg);
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            background: var(--accent);
+            color: var(--white);
+            transform: translateY(-3px);
+        }
+
+        .contact-form {
+            background: var(--light-bg);
+            border-radius: 24px;
+            padding: 45px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--primary);
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 14px 20px;
+            border: 2px solid rgba(0,0,0,0.06);
+            border-radius: 12px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 0.95rem;
+            background: var(--white);
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(44,116,179,0.1);
+        }
+
+        .form-group textarea {
+            height: 120px;
+            resize: vertical;
+        }
+
+        .form-submit {
+            width: 100%;
+            padding: 16px;
+            background: var(--gradient-primary);
+            color: var(--white);
+            border: none;
+            border-radius: 14px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .form-submit:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(10,38,71,0.3);
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: var(--primary);
+            padding: 80px 0 30px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr 1.2fr;
+            gap: 50px;
+            margin-bottom: 60px;
+        }
+
+        .footer-about .logo {
+            margin-bottom: 20px;
+        }
+
+        .footer-about p {
+            color: rgba(255,255,255,0.6);
+            line-height: 1.8;
+            font-size: 0.9rem;
+        }
+
+        .footer h4 {
+            color: var(--white);
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+            position: relative;
+            padding-bottom: 12px;
+        }
+
+        .footer h4::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 40px;
+            height: 3px;
+            background: var(--gold);
+            border-radius: 3px;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            color: rgba(255,255,255,0.6);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer-links a:hover {
+            color: var(--gold);
+            padding-right: 5px;
+        }
+
+        .footer-newsletter p {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            line-height: 1.7;
+        }
+
+        .newsletter-form {
+            display: flex;
+            gap: 10px;
+        }
+
+        .newsletter-form input {
+            flex: 1;
+            padding: 12px 18px;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.05);
+            color: var(--white);
+            font-family: 'Cairo', sans-serif;
+            outline: none;
+        }
+
+        .newsletter-form input::placeholder {
+            color: rgba(255,255,255,0.4);
+        }
+
+        .newsletter-form button {
+            padding: 12px 24px;
+            background: var(--gradient-gold);
+            color: var(--primary);
+            border: none;
+            border-radius: 12px;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .newsletter-form button:hover {
+            transform: translateY(-2px);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.08);
+            padding-top: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .footer-bottom p {
+            color: rgba(255,255,255,0.4);
+            font-size: 0.85rem;
+        }
+
+        .footer-bottom-links {
+            display: flex;
+            gap: 25px;
+        }
+
+        .footer-bottom-links a {
+            color: rgba(255,255,255,0.4);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer-bottom-links a:hover {
+            color: var(--gold);
+        }
+
+        /* ===== SCROLL TO TOP ===== */
+        .scroll-top {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-gold);
+            color: var(--primary);
+            border: none;
+            border-radius: 14px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: var(--shadow-gold);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+            z-index: 999;
+        }
+
+        .scroll-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .scroll-top:hover {
+            transform: translateY(-5px);
+        }
+
+        /* ===== WHATSAPP BUTTON ===== */
+        .whatsapp-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: #25d366;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            text-decoration: none;
+            box-shadow: 0 5px 25px rgba(37,211,102,0.4);
+            z-index: 999;
+            transition: all 0.3s ease;
+            animation: whatsappPulse 2s infinite;
+        }
+
+        .whatsapp-btn:hover {
+            transform: scale(1.1);
+        }
+
+        @keyframes whatsappPulse {
+            0%, 100% { box-shadow: 0 5px 25px rgba(37,211,102,0.4); }
+            50% { box-shadow: 0 5px 40px rgba(37,211,102,0.6); }
+        }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .animate-on-scroll.animated {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1024px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 50px;
+            }
+
+            .hero-desc {
+                margin: 0 auto 40px;
+            }
+
+            .hero-buttons {
+                justify-content: center;
+            }
+
+            .hero-title {
+                font-size: 3rem;
+            }
+
+            .about-grid {
+                grid-template-columns: 1fr;
+                gap: 50px;
+            }
+
+            .services-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .locations-wrapper {
+                grid-template-columns: 1fr;
+            }
+
+            .team-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .testimonials-grid,
+            .news-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: flex;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 80%;
+                height: 100vh;
+                background: var(--primary);
+                flex-direction: column;
+                padding: 100px 40px;
+                gap: 10px;
+                transition: right 0.4s ease;
+                box-shadow: -10px 0 40px rgba(0,0,0,0.3);
+            }
+
+            .nav-links.active {
+                right: 0;
+            }
+
+            .nav-links a {
+                font-size: 1.1rem;
+                padding: 15px 20px;
+                width: 100%;
+            }
+
+            section {
+                padding: 80px 0;
+            }
+
+            .container {
+                padding: 0 20px;
+            }
+
+            .hero-title {
+                font-size: 2.2rem;
+            }
+                        .section-title {
+                font-size: 2.2rem;
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .locations-list {
+                grid-template-columns: 1fr;
+            }
+
+            .team-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .testimonials-grid,
+            .news-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .contact-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .cta-content h2 {
+                font-size: 2rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 15px;
+            }
+
+            .about-features {
+                grid-template-columns: 1fr;
+            }
+
+            .vision-mission {
+                grid-template-columns: 1fr;
+            }
+
+            .floating-card {
+                display: none;
+            }
+
+            .about-experience {
+                bottom: auto;
+                top: -20px;
+                left: auto;
+                right: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 1.8rem;
+            }
+
+            .stat-number {
+                font-size: 1.6rem;
+            }
+
+            .hero-card-main {
+                padding: 25px;
+            }
+
+            .contact-form {
+                padding: 25px;
+            }
+
+            .nav-container {
+                padding: 0 20px;
+            }
+        }
+
+        /* ===== COUNTER ANIMATION ===== */
+        .counting {
+            display: inline-block;
+        }
+
+        /* ===== PARTICLE EFFECT IN HERO ===== */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: rgba(212, 168, 67, 0.4);
+            border-radius: 50%;
+            animation: particleFloat linear infinite;
+        }
+
+        @keyframes particleFloat {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* ===== TYPING EFFECT ===== */
+        .typing-effect {
+            border-left: 3px solid var(--gold);
+            padding-left: 15px;
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            50% {
+                border-color: transparent;
+            }
+        }
+
+        /* ===== IMAGE HOVER OVERLAY ===== */
+        .img-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(10,38,71,0.8), rgba(44,116,179,0.6));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .img-overlay:hover {
+            opacity: 1;
+        }
+
+        /* ===== PROGRESS BARS ===== */
+        .progress-section {
+            margin-top: 40px;
+        }
+
+        .progress-item {
+            margin-bottom: 20px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .progress-header span {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--light-bg);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient-gold);
+            border-radius: 10px;
+            width: 0;
+            transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ===== TIMELINE ===== */
+        .timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 50%;
+            width: 3px;
+            height: 100%;
+            background: rgba(44,116,179,0.15);
+            border-radius: 3px;
+            transform: translateX(50%);
+        }
+
+        .timeline-item {
+            display: flex;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .timeline-item:nth-child(odd) {
+            flex-direction: row-reverse;
+        }
+
+        .timeline-content {
+            width: 45%;
+            background: var(--white);
+            border-radius: 18px;
+            padding: 25px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .timeline-content:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .timeline-dot {
+            position: absolute;
+            top: 30px;
+            right: 50%;
+            transform: translateX(50%);
+            width: 18px;
+            height: 18px;
+            background: var(--gold);
+            border-radius: 50%;
+            border: 4px solid var(--light-bg);
+            z-index: 2;
+        }
+
+        .timeline-year {
+            display: inline-block;
+            background: rgba(212,168,67,0.15);
+            color: var(--gold);
+            padding: 4px 14px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .timeline-content h4 {
+            font-size: 1.05rem;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .timeline-content p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            line-height: 1.7;
+        }
+
+        @media (max-width: 768px) {
+            .timeline::before {
+                right: auto;
+                left: 15px;
+            }
+
+            .timeline-item,
+            .timeline-item:nth-child(odd) {
+                flex-direction: row;
+                padding-right: 0;
+                padding-left: 50px;
+            }
+
+            .timeline-content {
+                width: 100%;
+            }
+
+            .timeline-dot {
+                right: auto;
+                left: 7px;
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== PRELOADER ===== -->
+    <div class="preloader" id="preloader">
+        <div class="preloader-logo">
+            <i class="fas fa-hospital"></i>
+        </div>
+        <div class="preloader-bar"></div>
+    </div>
+
+    <!-- ===== NAVIGATION ===== -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-hospital"></i>
+                </div>
+                <div class="logo-text">Med<span>Manage</span> Pro</div>
+            </a>
+
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#home" class="active">الرئيسية</a></li>
+                <li><a href="#about">من نحن</a></li>
+                <li><a href="#services">خدماتنا</a></li>
+                <li><a href="#locations">مواقعنا</a></li>
+                <li><a href="#team">فريقنا</a></li>
+                <li><a href="#news">الأخبار</a></li>
+                <li><a href="#contact" class="nav-cta">تواصل معنا</a></li>
+            </ul>
+
+            <div class="menu-toggle" id="menuToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ===== HERO SECTION ===== -->
+    <section class="hero" id="home">
+        <div class="hero-bg">
+            <div class="hero-grid"></div>
+            <div class="orb orb-1"></div>
+            <div class="orb orb-2"></div>
+            <div class="orb orb-3"></div>
+        </div>
+
+        <div class="particles" id="particles"></div>
+
+        <div class="hero-content">
+            <div class="hero-text">
+                <div class="hero-badge">
+                    <i class="fas fa-star"></i>
+                    الشركة الرائدة في إدارة المنشآت الطبية
+                </div>
+                <h1 class="hero-title">
+                    نُدير مستشفياتكم
+                    <br>
+                    بمعايير <span class="highlight">عالمية</span>
+                    <br>
+                    ونتائج <span class="highlight">استثنائية</span>
+                </h1>
+                <p class="hero-desc">
+                    نقدم حلولاً متكاملة لإدارة المستشفيات والمراكز الطبية في مصر، 
+                    من خلال فريق من أفضل الخبراء والمتخصصين في القطاع الصحي
+                    لتحقيق أعلى معايير الجودة والكفاءة التشغيلية.
+                </p>
+                <div class="hero-buttons">
+                    <a href="#contact" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i>
+                        احجز استشارتك المجانية
+                    </a>
+                    <a href="#about" class="btn btn-outline">
+                        <i class="fas fa-play-circle"></i>
+                        تعرف علينا أكثر
+                    </a>
+                </div>
+            </div>
+
+            <div class="hero-visual">
+                <div class="hero-card-main">
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-icon"><i class="fas fa-hospital"></i></div>
+                            <div class="stat-number" data-target="50">0</div>
+                            <div class="stat-label">مستشفى ومركز طبي</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon"><i class="fas fa-user-md"></i></div>
+                            <div class="stat-number" data-target="500">0</div>
+                            <div class="stat-label">طبيب وأخصائي</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon"><i class="fas fa-users"></i></div>
+                            <div class="stat-number" data-target="100000">0</div>
+                            <div class="stat-label">مريض سنوياً</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon"><i class="fas fa-map-marker-alt"></i></div>
+                            <div class="stat-number" data-target="15">0</div>
+                            <div class="stat-label">محافظة في مصر</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="floating-card floating-card-1">
+                    <div class="fc-icon"><i class="fas fa-check-circle"></i></div>
+                    <div class="fc-text">
+                        <small>معدل رضا العملاء</small>
+                        <strong>98.5%</strong>
+                    </div>
+                </div>
+
+                <div class="floating-card floating-card-2">
+                    <div class="fc-icon"><i class="fas fa-award"></i></div>
+                    <div class="fc-text">
+                        <small>سنوات الخبرة</small>
+                        <strong>+15 سنة</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== ABOUT SECTION ===== -->
+    <section class="about" id="about">
+        <div class="container">
+            <div class="about-grid">
+                <div class="about-image animate-on-scroll">
+                    <div class="about-img-wrapper">
+                        <div class="about-img-placeholder">
+                            <i class="fas fa-hospital-alt"></i>
+                            <p>صورة الشركة</p>
+                        </div>
+                    </div>
+                    <div class="about-experience">
+                        <div class="number">+15</div>
+                        <div class="text">سنوات خبرة</div>
+                    </div>
+                </div>
+
+                <div class="about-content animate-on-scroll">
+                    <div class="section-tag">
+                        <i class="fas fa-info-circle"></i>
+                        من نحن
+                    </div>
+                    <h2>شريكك الأمثل في <span>إدارة المنشآت</span> الطبية</h2>
+                    <p>
+                        نحن شركة رائدة في مجال إدارة المستشفيات والمراكز الطبية في مصر. 
+                        نعمل على تطوير القطاع الصحي من خلال تطبيق أحدث المعايير العالمية 
+                        في الإدارة والتشغيل، مع التركيز على تقديم أعلى مستويات الرعاية الصحية للمرضى
+                        وتحقيق الاستدامة المالية لشركائنا.
+                    </p>
+
+                    <div class="about-features">
+                        <div class="about-feature">
+                            <i class="fas fa-certificate"></i>
+                            <span>معتمدون دولياً</span>
+                        </div>
+                        <div class="about-feature">
+                            <i class="fas fa-cogs"></i>
+                            <span>أنظمة ذكية</span>
+                        </div>
+                        <div class="about-feature">
+                            <i class="fas fa-hand-holding-medical"></i>
+                            <span>رعاية شاملة</span>
+                        </div>
+                        <div class="about-feature">
+                            <i class="fas fa-chart-line"></i>
+                            <span>نمو مستدام</span>
+                        </div>
+                    </div>
+
+                    <div class="vision-mission">
+                        <div class="vm-card">
+                            <h4><i class="fas fa-eye"></i> رؤيتنا</h4>
+                            <p>أن نكون الشركة الرائدة في إدارة المنشآت الطبية في الشرق الأوسط وشمال أفريقيا.</p>
+                        </div>
+                        <div class="vm-card">
+                            <h4><i class="fas fa-bullseye"></i> مهمتنا</h4>
+                            <p>تحسين جودة الرعاية الصحية من خلال إدارة احترافية تعتمد على أحدث التقنيات والمعايير.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== TIMELINE - مسيرتنا ===== -->
+            <div style="margin-top: 100px;">
+                <div class="section-header">
+                    <div class="section-tag">
+                        <i class="fas fa-history"></i>
+                        مسيرتنا
+                    </div>
+                    <h2 class="section-title">رحلة <span>النجاح</span> والتميز</h2>
+                </div>
+
+                <div class="timeline">
+                    <div class="timeline-item animate-on-scroll">
+                        <div class="timeline-content">
+                            <span class="timeline-year">2008</span>
+                            <h4>تأسيس الشركة</h4>
+                            <p>انطلاق الشركة في القاهرة مع إدارة أول مركز طبي متخصص.</p>
+                        </div>
+                        <div class="timeline-dot"></div>
+                    </div>
+
+                    <div class="timeline-item animate-on-scroll">
+                        <div class="timeline-content">
+                            <span class="timeline-year">2012</span>
+                            <h4>التوسع في الصعيد</h4>
+                            <p>افتتاح فروع في الأقصر وأسوان وتوسيع نطاق الخدمات.</p>
+                        </div>
+                        <div class="timeline-dot"></div>
+                    </div>
+
+                    <div class="timeline-item animate-on-scroll">
+                        <div class="timeline-content">
+                            <span class="timeline-year">2016</span>
+                            <h4>الاعتماد الدولي</h4>
+                            <p>الحصول على شهادة الاعتماد الدولي JCI لمعايير إدارة المستشفيات.</p>
+                        </div>
+                        <div class="timeline-dot"></div>
+                    </div>
+
+                    <div class="timeline-item animate-on-scroll">
+                        <div class="timeline-content">
+                            <span class="timeline-year">2020</span>
+                            <h4>التحول الرقمي</h4>
+                            <p>إطلاق منصة رقمية متكاملة لإدارة المنشآت الطبية عن بُعد.</p>
+                        </div>
+                        <div class="timeline-dot"></div>
+                    </div>
+
+                    <div class="timeline-item animate-on-scroll">
+                        <div class="timeline-content">
+                            <span class="timeline-year">2024</span>
+                            <h4>50 منشأة طبية</h4>
+                            <p>الوصول لإدارة 50 مستشفى ومركز طبي في 15 محافظة مصرية.</p>
+                        </div>
+                        <div class="timeline-dot"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== SERVICES SECTION ===== -->
+    <section class="services" id="services">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-tag">
+                    <i class="fas fa-concierge-bell"></i>
+                    خدماتنا
+                </div>
+                <h2 class="section-title">حلول <span>متكاملة</span> لإدارة القطاع الصحي</h2>
+                <p class="section-desc">
+                    نقدم مجموعة شاملة من الخدمات المصممة خصيصاً لتلبية احتياجات المنشآت الطبية بمختلف أحجامها
+                </p>
+            </div>
+
+            <div class="services-grid">
+                <div class="service-card animate-on-scroll">
+                    <div class="service-icon">
+                        <i class="fas fa-hospital-alt"></i>
+                    </div>
+                    <h3>إدارة المستشفيات</h3>
+                    <p>إدارة تشغيلية شاملة للمستشفيات وفقاً لأعلى المعايير العالمية.</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-circle"></i> التخطيط الاستراتيجي</li>
+                        <li><i class="fas fa-circle"></i> إدارة العمليات اليومية</li>
+                        <li><i class="fas fa-circle"></i> ضبط الجودة والأداء</li>
+                        <li><i class="fas fa-circle"></i> إدارة سلسلة الإمداد</li>
+                    </ul>
+                </div>
+
+                <div class="service-card animate-on-scroll">
+                    <div class="service-icon">
+                        <i class="fas fa-clinic-medical"></i>
+                    </div>
+                    <h3>إدارة المراكز الطبية</h3>
+                    <p>حلول مخصصة لإدارة المراكز الطبية والعيادات التخصصية.</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-circle"></i> تنظيم جداول الأطباء</li>
+                        <li><i class="fas fa-circle"></i> إدارة المواعيد الذكية</li>
+                        <li><i class="fas fa-circle"></i> تحسين تجربة المرضى</li>
+                        <li><i class="fas fa-circle"></i> إدارة الفوترة والتأمين</li>
+                    </ul>
+                </div>
+
+                <div class="service-card animate-on-scroll">
+                    <div class="service-icon">
+                        <i class="fas fa-laptop-medical"></i>
+                    </div>
+                    <h3>التحول الرقمي</h3>
+                    <p>رقمنة العمليات الطبية والإدارية باستخدام أحدث التقنيات.</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-circle"></i> السجلات الطبية الإلكترونية</li>
+                        <li><i class="fas fa-circle"></i> أنظمة ERP متكاملة</li>
+                        <li><i class="fas fa-circle"></i> الذكاء الاصطناعي في التشخيص</li>
+                        <li><i class="fas fa-circle"></i> التطبيب عن بُعد</li>
+                    </ul>
+                </div>
+
+                <div class="service-card animate-on-scroll">
+                    <div class="service-icon">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <h3>التدريب والتأهيل</h3>
+                    <p>برامج تدريبية متقدمة للكوادر الطبية والإدارية.</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-circle"></i> تدريب الكوادر الطبية</li>
+                        <li><i class="fas fa-circle"></i> برامج القيادة الصحية</li>
+                        <li><i class="fas fa-circle"></i> ورش عمل متخصصة</li>
+                        <li><i class="fas fa-circle"></i> شهادات معتمدة دولياً</li>
+                    </ul>
+                </div>
+
+                <div class="service-card animate-on-scroll">
+                    <div class="service-icon">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <h3>الاستشارات الصحية</h3>
+                    <p>استشارات متخصصة في تطوير وتحسين المنشآت الصحية.</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-circle"></i> دراسات الجدوى</li>
+                        <li><i class="fas fa-circle"></i> تصميم المنشآت الطبية</li>
+                        <li><i class="fas fa-circle"></i> استراتيجيات النمو</li>
+                        <li><i class="fas fa-circle"></i> تقييم الأداء المؤسسي</li>
+                    </ul>
+                </div>
+
+                <div class="service-card animate-on-scroll">
+                    <div class="service-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>الجودة والاعتماد</h3>
+                    <p>مساعدة المنشآت في الحصول على الاعتمادات المحلية والدولية.</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-circle"></i> معايير JCI</li>
+                        <li><i class="fas fa-circle"></i> اعتماد GAHAR</li>
+                        <li><i class="fas fa-circle"></i> ISO 9001</li>
+                        <li><i class="fas fa-circle"></i> سلامة المرضى</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== LOCATIONS SECTION ===== -->
+    <section class="locations" id="locations">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-tag">
+                    <i class="fas fa-map-marked-alt"></i>
+                    أماكن تواجدنا
+                </div>
+                <h2 class="section-title">نصل إليكم في كل مكان في <span>مصر</span></h2>
+                <p class="section-desc">
+                    شبكة واسعة من المنشآت الطبية المُدارة بأعلى المعايير في مختلف المحافظات المصرية
+                </p>
+            </div>
+
+            <div class="locations-wrapper">
+                <div class="egypt-map-container animate-on-scroll">
+                    <div class="map-visual">
+                        <div class="map-bg">
+                            <div class="map-pin pin-cairo">
+                                <div class="pin-dot"></div>
+                                <div class="pin-ring"></div>
+                                <div class="pin-label">القاهرة</div>
+                            </div>
+                            <div class="map-pin pin-alex">
+                                <div class="pin-dot"></div>
+                                <div class="pin-ring"></div>
+                                <div class="pin-label">الإسكندرية</div>
+                            </div>
+                            <div class="map-pin pin-giza">
+                                <div class="pin-dot"></div>
+                                <div class="pin-ring"></div>
+                                <div class="pin-label">الجيزة</div>
+                            </div>
+                            <div class="map-pin pin-hurghada">
+                                <div class="pin-dot"></div>
+                                <div class="pin-ring"></div>
+                                <div class="pin-label">الغردقة</div>
+                            </div>
+                            <div class="map-pin pin-luxor">
+                                <div class="pin-dot"></div>
+                                <div class="pin-ring"></div>
+                                <div class="pin-label">الأقصر</div>
+                            </div>
+                            <div class="map-pin pin-aswan">
+                                <div class="pin-dot"></div>
+                                <div class="pin-ring"></div>
+                                <div class="pin-label">أسوان</div>
+                            </div>
+                            <div class="map-pin pin-mansoura">
+                                <div class="pin-dot"></div>
+                                <div class="pin-ring"></div>
+                                <div class="pin-label">المنصورة</div>
+                            </div>
+                            <div class="map-pin pin-tanta">
+                                <div class="pin-dot"></div>
+                                <div class="pin-ring"></div>
+                                <div class="pin-label">طنطا</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="locations-list animate-on-scroll">
+                    <div class="location-card">
+                        <div class="location-card-header">
+                            <div class="location-card-icon"><i class="fas fa-landmark"></i></div>
+                            <div>
+                                <h4>القاهرة الكبرى</h4>
+                                <small>القاهرة - الجيزة - القليوبية</small>
+                            </div>
+                        </div>
+                        <p>المقر الرئيسي للشركة مع أكبر شبكة منشآت طبية مُدارة.</p>
+                        <span class="facility-count"><i class="fas fa-hospital"></i> 18 منشأة طبية</span>
+                    </div>
+
+                    <div class="location-card">
+                        <div class="location-card-header">
+                            <div class="location-card-icon"><i class="fas fa-water"></i></div>
+                            <div>
+                                <h4>الإسكندرية</h4>
+                                <small>عروس البحر المتوسط</small>
+                            </div>
+                        </div>
+                        <p>مستشفيات ومراكز طبية متميزة على ساحل المتوسط.</p>
+                        <span class="facility-count"><i class="fas fa-hospital"></i> 8 منشآت طبية</span>
+                    </div>
+
+                    <div class="location-card">
+                        <div class="location-card-header">
+                            <div class="location-card-icon"><i class="fas fa-mountain"></i></div>
+                            <div>
+                                <h4>صعيد مصر</h4>
+                                <small>الأقصر - أسوان - سوهاج</small>
+                            </div>
+                        </div>
+                        <p>نوفر خدمات صحية متميزة لأهالي الصعيد.</p>
+                        <span class="facility-count"><i class="fas fa-hospital"></i> 10 منشآت طبية</span>
+                    </div>
+
+                    <div class="location-card">
+                        <div class="location-card-header">
+                            <div class="location-card-icon"><i class="fas fa-leaf"></i></div>
+                            <div>
+                                <h4>الدلتا</h4>
+                                <small>المنصورة - طنطا - الزقازيق</small>
+                            </div>
+                        </div>
+                        <p>شبكة متنامية من المراكز الطبية في قلب الدلتا.</p>
+                        <span class="facility-count"><i class="fas fa-hospital"></i> 9 منشآت طبية</span>
+                    </div>
+
+                    <div class="location-card">
+                        <div class="location-card-header">
+                            <div class="location-card-icon"><i class="fas fa-umbrella-beach"></i></div>
+                            <div>
+                                <h4>البحر الأحمر</h4>
+                                <small>الغردقة - شرم الشيخ</small>
+                            </div>
+                        </div>
+                        <p>خدمات طبية سياحية على مستوى عالمي.</p>
+                        <span class="facility-count"><i class="fas fa-hospital"></i> 5 منشآت طبية</span>
+                    </div>
+
+                    <div class="location-card">
+                        <div class="location-card-header">
+                            <div class="location-card-icon"><i class="fas fa-road"></i></div>
+                            <div>
+                                <h4>القناة والسويس</h4>
+                                <small>الإسماعيلية - السويس - بورسعيد</small>
+                            </div>
+                        </div>
+                        <p>منشآت طبية حديثة في منطقة قناة السويس.</p>
+                        <span class="facility-count"><i class="fas fa-hospital"></i> 6 منشآت طبية</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== TEAM SECTION ===== -->
+    <section class="team" id="team">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-tag">
+                    <i class="fas fa-users"></i>
+                    فريق القيادة
+                </div>
+                <h2 class="section-title">خبراء يقودون <span>التغيير</span></h2>
+                <p class="section-desc">
+                    فريق من أفضل المتخصصين في إدارة القطاع الصحي بخبرات تتجاوز العقود
+                </p>
+            </div>
+
+            <div class="team-grid">
+                <div class="team-card animate-on-scroll">
+                    <div class="team-img">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <div class="team-info">
+                        <h4>د. أحمد محمد</h4>
+                        <p class="role">الرئيس التنفيذي</p>
+                        <div class="team-social">
+                            <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                            <a href="#"><i class="fas fa-envelope"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="team-card animate-on-scroll">
+                    <div class="team-img" style="background: linear-gradient(135deg, #144272, #205295);">
+                        <i class="fas fa-user-md"></i>
+                    </div>
+                    <div class="team-info">
+                        <h4>د. سارة علي</h4>
+                        <p class="role">المدير الطبي</p>
+                        <div class="team-social">
+                            <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                            <a href="#"><i class="fas fa-envelope"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="team-card animate-on-scroll">
+                    <div class="team-img" style="background: linear-gradient(135deg, #0a2647, #144272);">
+                        <i class="fas fa-user-cog"></i>
+                    </div>
+                    <div class="team-info">
+                        <h4>م. خالد حسن</h4>
+                        <p class="role">مدير العمليات</p>
+                        <div class="team-social">
+                            <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                            <a href="#"><i class="fas fa-envelope"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="team-card animate-on-scroll">
+                    <div class="team-img" style="background: linear-gradient(135deg, #205295, #2C74B3);">
+                        <i class="fas fa-user-chart"></i>
+                    </div>
+                    <div class="team-info">
+                        <h4>أ. منى عبدالله</h4>
+                        <p class="role">مدير التطوير</p>
+                        <div class="team-social">
+                            <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                            <a href="#"><i class="fas fa-envelope"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== PARTNERS SECTION ===== -->
+    <section class="partners">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-tag">
+                    <i class="fas fa-handshake"></i>
+                    شركاؤنا
+                </div>
+                <h2 class="section-title">شركاء <span>النجاح</span></h2>
+            </div>
+
+            <div class="partners-slider">
+                <div class="partners-track">
+                    <div class="partner-item">🏥 مستشفى السلام</div>
+                    <div class="partner-item">🏥 مستشفى النيل</div>
+                    <div class="partner-item">🏥 مركز الشفاء</div>
+                    <div class="partner-item">🏥 مستشفى الحياة</div>
+                    <div class="partner-item">🏥 مركز النور</div>
+                    <div class="partner-item">🏥 مستشفى الأمل</div>
+                    <div class="partner-item">🏥 مركز الرحمة</div>
+                    <div class="partner-item">🏥 مستشفى المعافى</div>
+                    <!-- Duplicate for infinite scroll -->
+                    <div class="partner-item">🏥 مستشفى السلام</div>
+                    <div class="partner-item">🏥 مستشفى النيل</div>
+                    <div class="partner-item">🏥 مركز الشفاء</div>
+                    <div class="partner-item">🏥 مستشفى الحياة</div>
+                    <div class="partner-item">🏥 مركز النور</div>
+                    <div class="partner-item">🏥 مستشفى الأمل</div>
+                    <div class="partner-item">🏥 مركز الرحمة</div>
+                    <div class="partner-item">🏥 مستشفى المعافى</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== TESTIMONIALS SECTION ===== -->
+    <section class="testimonials" id="testimonials">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-tag">
+                    <i class="fas fa-quote-right"></i>
+                    آراء عملائنا
+                </div>
+                <h2 class="section-title">ماذا يقول <span>شركاؤنا</span> عنا</h2>
+                <p class="section-desc">
+                    نفخر بثقة عملائنا وشركائنا في خدماتنا ونتائجنا
+                </p>
+            </div>
+
+            <div class="testimonials-grid">
+                <div class="testimonial-card animate-on-scroll">
+                    <div class="testimonial-stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p>
+                        "منذ تعاقدنا مع الشركة، شهدنا تحسناً ملحوظاً في جودة الخدمات الطبية 
+                        ورضا المرضى. فريق محترف يفهم احتياجات القطاع الصحي بعمق."
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">أ م</div>
+                        <div>
+                            <h5>د. أحمد مصطفى</h5>
+                            <small>مدير مستشفى السلام - القاهرة</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card animate-on-scroll">
+                    <div class="testimonial-stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p>
+                        "التحول الرقمي الذي قاموا بتنفيذه في مركزنا غيّر طريقة عملنا بالكامل. 
+                        أصبحت العمليات أسرع وأكثر دقة وكفاءة."
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">ن ع</div>
+                        <div>
+                            <h5>د. نادية عبدالرحمن</h5>
+                            <small>مدير مركز الشفاء - الإسكندرية</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card animate-on-scroll">
+                    <div class="testimonial-stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                    </div>
+                    <p>
+                        "برامج التدريب التي قدموها لفريقنا الطبي والإداري كانت نقطة تحول حقيقية. 
+                        ارتفعت كفاءة الفريق بشكل ملحوظ."
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">م ح</div>
+                        <div>
+                            <h5>أ. محمد حسين</h5>
+                            <small>رئيس مجلس إدارة مستشفى النيل - المنصورة</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== NEWS SECTION ===== -->
+    <section class="news" id="news">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-tag">
+                    <i class="fas fa-newspaper"></i>
+                    أخبار ومقالات
+                </div>
+                <h2 class="section-title">آخر <span>الأخبار</span> والمستجدات</h2>
+                <p class="section-desc">
+                    تابع أحدث أخبار الشركة والمقالات المتخصصة في إدارة القطاع الصحي
+                </p>
+            </div>
+
+            <div class="news-grid">
+                <div class="news-card animate-on-scroll">
+                    <div class="news-img">
+                        <i class="fas fa-award"></i>
+                        <span class="news-date">15 يناير 2024</span>
+                    </div>
+                    <div class="news-content">
+                        <span class="news-tag">إنجازات</span>
+                        <h3>حصولنا على جائزة أفضل شركة إدارة مستشفيات في الشرق الأوسط</h3>
+                        <p>تم تكريم الشركة في مؤتمر القمة الصحية العالمية لتميزها في إدارة المنشآت الطبية.</p>
+                        <a href="#" class="news-link">
+                            اقرأ المزيد <i class="fas fa-arrow-left"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="news-card animate-on-scroll">
+                    <div class="news-img" style="background: linear-gradient(135deg, #144272, #2C74B3);">
+                        <i class="fas fa-handshake"></i>
+                        <span class="news-date">28 فبراير 2024</span>
+                    </div>
+                    <div class="news-content">
+                        <span class="news-tag">شراكات</span>
+                        <h3>توقيع اتفاقية شراكة مع منظمة الصحة العالمية لتطوير المنشآت</h3>
+                        <p>اتفاقية استراتيجية لتطبيق أحدث المعايير الدولية في المنشآت الطبية المُدارة.</p>
+                        <a href="#" class="news-link">
+                            اقرأ المزيد <i class="fas fa-arrow-left"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="news-card animate-on-scroll">
+                    <div class="news-img" style="background: linear-gradient(135deg, #0a2647, #205295);">
+                        <i class="fas fa-hospital"></i>
+                        <span class="news-date">10 مارس 2024</span>
+                    </div>
+                    <div class="news-content">
+                        <span class="news-tag">توسعات</span>
+                        <h3>افتتاح 5 مراكز طبية جديدة في محافظات الصعيد</h3>
+                        <p>في إطار خطة التوسع، تم افتتاح مراكز طبية حديثة مجهزة بأحدث الأجهزة.</p>
+                        <a href="#" class="news-link">
+                            اقرأ المزيد <i class="fas fa-arrow-left"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FAQ SECTION ===== -->
+    <section class="faq" id="faq">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-tag">
+                    <i class="fas fa-question-circle"></i>
+                    أسئلة شائعة
+                </div>
+                <h2 class="section-title">إجابات على <span>أسئلتكم</span></h2>
+            </div>
+
+            <div class="faq-grid">
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <h4>ما هي الخدمات التي تقدمونها للمستشفيات؟</h4>
+                        <div class="faq-toggle"><i class="fas fa-plus"></i></div>
+                    </div>
+                    <div class="faq-answer">
+                        <p>نقدم مجموعة شاملة من الخدمات تشمل: الإدارة التشغيلية الكاملة، التخطيط الاستراتيجي، إدارة الجودة والاعتماد، التحول الرقمي، تدريب الكوادر، إدارة سلسلة الإمداد، والاستشارات المتخصصة في تطوير المنشآت الطبية.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <h4>كم تستغرق عملية تطوير المستشفى؟</h4>
+                        <div class="faq-toggle"><i class="fas fa-plus"></i></div>
+                    </div>
+                    <div class="faq-answer">
+                        <p>تختلف المدة حسب حجم المنشأة ونطاق العمل المطلوب. عادةً تتراوح خطة التطوير الشاملة بين 6 إلى 18 شهراً، مع ظهور نتائج ملموسة خلال الأشهر الثلاثة الأولى.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <h4>هل تقدمون خدمات للمراكز الطبية الصغيرة؟</h4>
+                        <div class="faq-toggle"><i class="fas fa-plus"></i></div>
+                    </div>
+                    <div class="faq-answer">
+                        <p>نعم، نقدم حلولاً مخصصة تناسب جميع أحجام المنشآت الطبية، من العيادات الصغيرة وحتى المستشفيات الكبرى. لدينا باقات مرنة تتناسب مع احتياجات وميزانية كل منشأة.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <h4>ما هي المحافظات التي تغطونها في مصر؟</h4>
+                        <div class="faq-toggle"><i class="fas fa-plus"></i></div>
+                    </div>
+                    <div class="faq-answer">
+                        <p>نغطي حالياً 15 محافظة مصرية تشمل: القاهرة، الجيزة، الإسكندرية، المنصورة، طنطا، الأقصر، أسوان، الغردقة، شرم الشيخ، الإسماعيلية، السويس، بورسعيد، سوهاج، المنيا، وأسيوط. ونخطط للتوسع في المزيد من المحافظات.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <h4>كيف يمكنني التواصل للحصول على استشارة؟</h4>
+                        <div class="faq-toggle"><i class="fas fa-plus"></i></div>
+                    </div>
+                    <div class="faq-answer">
+                        <p>يمكنكم التواصل معنا من خلال نموذج الاتصال في الموقع، أو عبر الهاتف، أو البريد الإلكتروني، أو زيارة مقرنا الرئيسي في القاهرة. نقدم استشارة أولية مجانية لتقييم احتياجاتكم.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CTA SECTION ===== -->
+    <section class="cta">
+        <div class="container">
+            <div class="cta-content animate-on-scroll">
+                <h2>هل أنت مستعد لنقل منشأتك <span>للمستوى التالي؟</span></h2>
+                <p>
+                    دعنا نساعدك في تحويل منشأتك الطبية إلى مؤسسة صحية رائدة 
+                    تحقق أعلى معايير الجودة وأفضل النتائج.
+                </p>
+                <div class="cta-buttons">
+                    <a href="#contact" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i>
+                        تواصل معنا الآن
+                    </a>
+                    <a href="tel:+201234567890" class="btn btn-outline">
+                        <i class="fas fa-phone-alt"></i>
+                        اتصل بنا
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CONTACT SECTION ===== -->
+    <section class="contact" id="contact">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-tag">
+                    <i class="fas fa-envelope"></i>
+                    تواصل معنا
+                </div>
+                <h2 class="section-title">نحن هنا <span>لمساعدتك</span></h2>
+                <p class="section-desc">
+                    لا تتردد في التواصل معنا لأي استفسار أو للحصول على استشارة مجانية
+                </p>
+            </div>
+
+            <div class="contact-grid">
+                <div class="contact-info animate-on-scroll">
+                    <h3>لنبدأ <span>رحلة النجاح</span> معاً</h3>
+                    <p>
+                        فريقنا المتخصص جاهز للإجابة على جميع استفساراتكم وتقديم 
+                        الحلول المناسبة لمنشأتكم الطبية.
+                    </p>
+
+                    <div class="contact-details">
+                        <div class="contact-item">
+                            <div class="contact-item-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div class="contact-item-text">
+                                <h5>المقر الرئيسي</h5>
+                                <p>القاهرة، مصر - التجمع الخامس، شارع التسعين</p>
+                            </div>
+                        </div>
+
+                        <div class="contact-item">
+                            <div class="contact-item-icon">
+                                <i class="fas fa-phone-alt"></i>
+                            </div>
+                            <div class="contact-item-text">
+                                <h5>اتصل بنا</h5>
+                                <p dir="ltr">+20 123 456 7890</p>
+                            </div>
+                        </div>
+
+                        <div class="contact-item">
+                            <div class="contact-item-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="contact-item-text">
+                                <h5>البريد الإلكتروني</h5>
+                                <p>info@medmanagepro.com</p>
+                            </div>
+                        </div>
+
+                        <div class="contact-item">
+                            <div class="contact-item-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="contact-item-text">
+                                <h5>ساعات العمل</h5>
+                                <p>الأحد - الخميس: 9 صباحاً - 6 مساءً</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+
+                <div class="contact-form animate-on-scroll">
+                    <form id="contactForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>الاسم الكامل</label>
+                                <input type="text" placeholder="أدخل اسمك" required>
+                            </div>
+                            <div class="form-group">
+                                <label>رقم الهاتف</label>
+                                <input type="tel" placeholder="أدخل رقم هاتفك" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>البريد الإلكتروني</label>
+                                <input type="email" placeholder="أدخل بريدك الإلكتروني" required>
+                            </div>
+                            <div class="form-group">
+                                <label>نوع المنشأة</label>
+                                <select required>
+                                    <option value="">اختر نوع المنشأة</option>
+                                    <option value="hospital">مستشفى</option>
+                                    <option value="medical-center">مركز طبي</option>
+                                    <option value="clinic">عيادة</option>
+                                    <option value="lab">معمل تحاليل</option>
+                                    <option value="radiology">مركز أشعة</option>
+                                    <option value="other">أخرى</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>الخدمة المطلوبة</label>
+                            <select required>
+                                <option value="">اختر الخدمة</option>
+                                <option value="management">إدارة شاملة</option>
+                                <option value="consulting">استشارات</option>
+                                <option value="digital">تحول رقمي</option>
+                                <option value="training">تدريب وتأهيل</option>
+                                <option value="quality">جودة واعتماد</option>
+                                <option value="other">أخرى</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>رسالتك</label>
+                            <textarea placeholder="اكتب رسالتك أو استفسارك هنا..." required></textarea>
+                        </div>
+                        <button type="submit" class="form-submit">
+                            <i class="fas fa-paper-plane"></i>
+                            إرسال الرسالة
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-about">
+                    <a href="#" class="logo">
+                        <div class="logo-icon">
+                            <i class="fas fa-hospital"></i>
+                        </div>
+                        <div class="logo-text">Med<span>Manage</span> Pro</div>
+                    </a>
+                    <p>
+                        شركة رائدة في إدارة المستشفيات والمراكز الطبية في مصر. 
+                        نسعى لتحسين جودة الرعاية الصحية من خلال إدارة احترافية 
+                        وتقنيات متطورة.
+                    </p>
+                    <div class="social-links" style="margin-top: 20px;">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                                                <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+
+                <div class="footer-col">
+                    <h4>روابط سريعة</h4>
+                    <ul class="footer-links">
+                        <li><a href="#home"><i class="fas fa-chevron-left"></i> الرئيسية</a></li>
+                        <li><a href="#about"><i class="fas fa-chevron-left"></i> من نحن</a></li>
+                        <li><a href="#services"><i class="fas fa-chevron-left"></i> خدماتنا</a></li>
+                        <li><a href="#locations"><i class="fas fa-chevron-left"></i> مواقعنا</a></li>
+                        <li><a href="#team"><i class="fas fa-chevron-left"></i> فريقنا</a></li>
+                        <li><a href="#contact"><i class="fas fa-chevron-left"></i> تواصل معنا</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h4>خدماتنا</h4>
+                    <ul class="footer-links">
+                        <li><a href="#"><i class="fas fa-chevron-left"></i> إدارة المستشفيات</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-left"></i> إدارة المراكز الطبية</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-left"></i> التحول الرقمي</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-left"></i> التدريب والتأهيل</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-left"></i> الاستشارات الصحية</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-left"></i> الجودة والاعتماد</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-newsletter">
+                    <h4>النشرة البريدية</h4>
+                    <p>اشترك في نشرتنا البريدية للحصول على آخر الأخبار والمقالات المتخصصة في إدارة القطاع الصحي.</p>
+                    <form class="newsletter-form" onsubmit="handleNewsletter(event)">
+                        <input type="email" placeholder="بريدك الإلكتروني" required>
+                        <button type="submit"><i class="fas fa-paper-plane"></i></button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>© 2024 MedManage Pro. جميع الحقوق محفوظة.</p>
+                <div class="footer-bottom-links">
+                    <a href="#">سياسة الخصوصية</a>
+                    <a href="#">الشروط والأحكام</a>
+                    <a href="#">خريطة الموقع</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ===== SCROLL TO TOP ===== -->
+    <button class="scroll-top" id="scrollTop" onclick="scrollToTop()">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <!-- ===== WHATSAPP BUTTON ===== -->
+    <a href="https://wa.me/201234567890" target="_blank" class="whatsapp-btn">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <!-- ===== JAVASCRIPT ===== -->
+    <script>
+        // ===== PRELOADER =====
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('preloader').classList.add('hidden');
+            }, 2000);
+        });
+
+        // ===== NAVBAR SCROLL EFFECT =====
+        const navbar = document.getElementById('navbar');
+        const scrollTop = document.getElementById('scrollTop');
+
+        window.addEventListener('scroll', () => {
+            const scrollY = window.scrollY;
+            
+            // Navbar
+            if (scrollY > 100) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+
+            // Scroll to top button
+            if (scrollY > 500) {
+                scrollTop.classList.add('visible');
+            } else {
+                scrollTop.classList.remove('visible');
+            }
+
+            // Active nav link
+            updateActiveNav();
+        });
+
+        // ===== MOBILE MENU =====
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.getElementById('navLinks');
+
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        });
+
+        // Close menu when clicking a link
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                menuToggle.classList.remove('active');
+                navLinks.classList.remove('active');
+            });
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!navLinks.contains(e.target) && !menuToggle.contains(e.target)) {
+                menuToggle.classList.remove('active');
+                navLinks.classList.remove('active');
+            }
+        });
+
+        // ===== ACTIVE NAVIGATION =====
+        function updateActiveNav() {
+            const sections = document.querySelectorAll('section[id]');
+            const scrollPosition = window.scrollY + 200;
+
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.offsetHeight;
+                const sectionId = section.getAttribute('id');
+
+                if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+                    document.querySelectorAll('.nav-links a').forEach(link => {
+                        link.classList.remove('active');
+                        if (link.getAttribute('href') === `#${sectionId}`) {
+                            link.classList.add('active');
+                        }
+                    });
+                }
+            });
+        }
+
+        // ===== SCROLL TO TOP =====
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // ===== SMOOTH SCROLL =====
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    const headerOffset = 80;
+                    const elementPosition = target.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // ===== COUNTER ANIMATION =====
+        function animateCounters() {
+            const counters = document.querySelectorAll('.stat-number[data-target]');
+            
+            counters.forEach(counter => {
+                const target = parseInt(counter.getAttribute('data-target'));
+                const duration = 2000;
+                const increment = target / (duration / 16);
+                let current = 0;
+
+                const updateCounter = () => {
+                    current += increment;
+                    if (current < target) {
+                        counter.textContent = formatNumber(Math.ceil(current));
+                        requestAnimationFrame(updateCounter);
+                    } else {
+                        counter.textContent = formatNumber(target) + '+';
+                    }
+                };
+
+                updateCounter();
+            });
+        }
+
+        function formatNumber(num) {
+            if (num >= 1000) {
+                return (num / 1000).toFixed(num >= 10000 ? 0 : 1) + 'K';
+            }
+            return num.toString();
+        }
+
+        // Start counter when hero is visible
+        const heroObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateCounters();
+                    heroObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        const heroVisual = document.querySelector('.hero-visual');
+        if (heroVisual) heroObserver.observe(heroVisual);
+
+        // ===== SCROLL ANIMATIONS =====
+        const animateElements = document.querySelectorAll('.animate-on-scroll');
+        
+        const scrollObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry, index) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => {
+                        entry.target.classList.add('animated');
+                    }, index * 100);
+                    scrollObserver.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
+
+        animateElements.forEach(el => scrollObserver.observe(el));
+
+        // ===== FAQ TOGGLE =====
+        function toggleFaq(element) {
+            const faqItem = element.parentElement;
+            const isActive = faqItem.classList.contains('active');
+
+            // Close all FAQ items
+            document.querySelectorAll('.faq-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // Open clicked item if it wasn't active
+            if (!isActive) {
+                faqItem.classList.add('active');
+            }
+        }
+
+        // ===== PARTICLES EFFECT =====
+        function createParticles() {
+            const container = document.getElementById('particles');
+            if (!container) return;
+
+            const particleCount = 30;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                const size = Math.random() * 4 + 1;
+                const left = Math.random() * 100;
+                const delay = Math.random() * 15;
+                const duration = Math.random() * 10 + 10;
+                const opacity = Math.random() * 0.5 + 0.2;
+
+                particle.style.cssText = `
+                    width: ${size}px;
+                    height: ${size}px;
+                    left: ${left}%;
+                    animation-delay: ${delay}s;
+                    animation-duration: ${duration}s;
+                    opacity: ${opacity};
+                `;
+
+                // Randomly choose gold or blue particles
+                if (Math.random() > 0.5) {
+                    particle.style.background = 'rgba(212, 168, 67, 0.5)';
+                } else {
+                    particle.style.background = 'rgba(44, 116, 179, 0.4)';
+                }
+
+                container.appendChild(particle);
+            }
+        }
+
+        createParticles();
+
+        // ===== PROGRESS BARS ANIMATION =====
+        function animateProgressBars() {
+            const progressBars = document.querySelectorAll('.progress-fill');
+            progressBars.forEach(bar => {
+                const width = bar.getAttribute('data-width');
+                bar.style.width = width + '%';
+            });
+        }
+
+        const progressObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateProgressBars();
+                    progressObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        const progressSection = document.querySelector('.progress-section');
+        if (progressSection) progressObserver.observe(progressSection);
+
+        // ===== FORM HANDLING =====
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const submitBtn = this.querySelector('.form-submit');
+            const originalText = submitBtn.innerHTML;
+            
+            // Show loading state
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإرسال...';
+            submitBtn.disabled = true;
+            
+            // Simulate form submission
+            setTimeout(() => {
+                submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> تم الإرسال بنجاح!';
+                submitBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                
+                // Show success notification
+                showNotification('تم إرسال رسالتك بنجاح! سنتواصل معك قريباً.', 'success');
+                
+                // Reset form after delay
+                setTimeout(() => {
+                    this.reset();
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.style.background = '';
+                    submitBtn.disabled = false;
+                }, 3000);
+            }, 2000);
+        });
+
+        // ===== NEWSLETTER HANDLING =====
+        function handleNewsletter(e) {
+            e.preventDefault();
+            const input = e.target.querySelector('input');
+            const email = input.value;
+            
+            if (email) {
+                showNotification('تم الاشتراك بنجاح! شكراً لك.', 'success');
+                input.value = '';
+            }
+        }
+
+        // ===== NOTIFICATION SYSTEM =====
+        function showNotification(message, type = 'info') {
+            // Remove existing notification
+            const existing = document.querySelector('.notification');
+            if (existing) existing.remove();
+
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            
+            const bgColor = type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6';
+            const icon = type === 'success' ? 'check-circle' : type === 'error' ? 'times-circle' : 'info-circle';
+            
+            notification.style.cssText = `
+                position: fixed;
+                top: 30px;
+                left: 50%;
+                transform: translateX(-50%) translateY(-100px);
+                background: ${bgColor};
+                color: white;
+                padding: 16px 30px;
+                border-radius: 14px;
+                font-family: 'Cairo', sans-serif;
+                font-weight: 700;
+                font-size: 0.95rem;
+                z-index: 99999;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+                transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+                max-width: 90%;
+            `;
+
+            notification.innerHTML = `
+                <i class="fas fa-${icon}"></i>
+                <span>${message}</span>
+                <i class="fas fa-times" style="cursor:pointer; margin-right:10px; opacity:0.7;" onclick="this.parentElement.remove()"></i>
+            `;
+
+            document.body.appendChild(notification);
+
+            // Animate in
+            requestAnimationFrame(() => {
+                notification.style.transform = 'translateX(-50%) translateY(0)';
+            });
+
+            // Auto remove
+            setTimeout(() => {
+                notification.style.transform = 'translateX(-50%) translateY(-100px)';
+                setTimeout(() => notification.remove(), 500);
+            }, 5000);
+        }
+
+        // ===== TILT EFFECT ON SERVICE CARDS =====
+        document.querySelectorAll('.service-card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = (y - centerY) / 20;
+                const rotateY = (centerX - x) / 20;
+                
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-10px)`;
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateY(0)';
+            });
+        });
+
+        // ===== MAP PIN INTERACTION =====
+        document.querySelectorAll('.map-pin').forEach(pin => {
+            pin.addEventListener('mouseenter', () => {
+                pin.querySelector('.pin-dot').style.transform = 'scale(1.5)';
+                pin.querySelector('.pin-dot').style.background = '#10b981';
+            });
+
+            pin.addEventListener('mouseleave', () => {
+                pin.querySelector('.pin-dot').style.transform = 'scale(1)';
+                pin.querySelector('.pin-dot').style.background = '';
+            });
+        });
+
+        // ===== LOCATION CARDS CLICK =====
+        document.querySelectorAll('.location-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const cityName = card.querySelector('h4').textContent;
+                showNotification(`عرض تفاصيل منشآتنا في ${cityName}`, 'info');
+            });
+        });
+
+        // ===== TYPING EFFECT FOR HERO =====
+        function typeWriter(element, text, speed = 50) {
+            let i = 0;
+            element.textContent = '';
+            
+            function type() {
+                if (i < text.length) {
+                    element.textContent += text.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                }
+            }
+            type();
+        }
+
+        // ===== LAZY LOADING IMAGES =====
+        if ('IntersectionObserver' in window) {
+            const imageObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        if (img.dataset.src) {
+                            img.src = img.dataset.src;
+                            img.classList.add('loaded');
+                        }
+                        imageObserver.unobserve(img);
+                    }
+                });
+            });
+
+            document.querySelectorAll('img[data-src]').forEach(img => {
+                imageObserver.observe(img);
+            });
+        }
+
+        // ===== DYNAMIC YEAR IN FOOTER =====
+        const yearElements = document.querySelectorAll('.current-year');
+        yearElements.forEach(el => {
+            el.textContent = new Date().getFullYear();
+        });
+
+        // ===== KEYBOARD NAVIGATION =====
+        document.addEventListener('keydown', (e) => {
+            // Escape closes mobile menu
+            if (e.key === 'Escape') {
+                menuToggle.classList.remove('active');
+                navLinks.classList.remove('active');
+            }
+        });
+
+        // ===== PARALLAX EFFECT ON ORBS =====
+        window.addEventListener('mousemove', (e) => {
+            const mouseX = e.clientX / window.innerWidth;
+            const mouseY = e.clientY / window.innerHeight;
+
+            document.querySelectorAll('.orb').forEach((orb, index) => {
+                const speed = (index + 1) * 20;
+                const x = (mouseX - 0.5) * speed;
+                const y = (mouseY - 0.5) * speed;
+                orb.style.transform = `translate(${x}px, ${y}px)`;
+            });
+        });
+
+        // ===== PERFORMANCE OPTIMIZATION =====
+        // Debounce scroll events
+        function debounce(func, wait = 10) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // ===== PAGE VISIBILITY API =====
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                // Pause animations when page is not visible
+                document.querySelectorAll('.partners-track').forEach(track => {
+                    track.style.animationPlayState = 'paused';
+                });
+            } else {
+                document.querySelectorAll('.partners-track').forEach(track => {
+                    track.style.animationPlayState = 'running';
+                });
+            }
+        });
+
+        // ===== CONSOLE BRANDING =====
+        console.log(
+            '%c MedManage Pro %c\n شركة إدارة المستشفيات والمراكز الطبية ',
+            'background: #0a2647; color: #d4a843; font-size: 24px; font-weight: bold; padding: 10px 20px; border-radius: 8px;',
+            'color: #0a2647; font-size: 14px; padding: 5px;'
+        );
+
+        // ===== SMOOTH REVEAL ON LOAD =====
+        window.addEventListener('load', () => {
+            document.body.style.opacity = '0';
+            document.body.style.transition = 'opacity 0.5s ease';
+            
+            setTimeout(() => {
+                document.body.style.opacity = '1';
+            }, 100);
+        });
+
+        // ===== EASTER EGG - KONAMI CODE =====
+        let konamiCode = [];
+        const konamiSequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight'];
+
+        document.addEventListener('keydown', (e) => {
+            konamiCode.push(e.key);
+            konamiCode = konamiCode.slice(-8);
+            
+            if (JSON.stringify(konamiCode) === JSON.stringify(konamiSequence)) {
+                showNotification('🎉 أنت اكتشفت السر! شكراً لاهتمامك بالتفاصيل', 'success');
+                
+                // Fun confetti effect
+                for (let i = 0; i < 50; i++) {
+                    createConfetti();
+                }
+            }
+        });
+
+        function createConfetti() {
+            const confetti = document.createElement('div');
+            const colors = ['#d4a843', '#2C74B3', '#10b981', '#a855f7', '#ef4444'];
+            
+            confetti.style.cssText = `
+                position: fixed;
+                top: -10px;
+                left: ${Math.random() * 100}%;
+                width: ${Math.random() * 10 + 5}px;
+                height: ${Math.random() * 10 + 5}px;
+                background: ${colors[Math.floor(Math.random() * colors.length)]};
+                border-radius: ${Math.random() > 0.5 ? '50%' : '0'};
+                z-index: 99999;
+                pointer-events: none;
+                animation: confettiFall ${Math.random() * 3 + 2}s linear forwards;
+            `;
+            
+            document.body.appendChild(confetti);
+            
+            setTimeout(() => confetti.remove(), 5000);
+        }
+
+        // Add confetti animation
+        const confettiStyle = document.createElement('style');
+        confettiStyle.textContent = `
+            @keyframes confettiFall {
+                0% {
+                    transform: translateY(0) rotate(0deg);
+                    opacity: 1;
+                }
+                100% {
+                    transform: translateY(100vh) rotate(720deg);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(confettiStyle);
+    </script>
+
+</body>
+</html>
