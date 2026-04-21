@@ -1,0 +1,3753 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ميديكال بلس | إدارة المستشفيات والمراكز الطبية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <style>
+        /* ============ ROOT VARIABLES ============ */
+        :root {
+            --primary: #0A1628;
+            --primary-light: #111D35;
+            --secondary: #1E40AF;
+            --accent: #0D9488;
+            --accent-light: #14B8A6;
+            --gold: #D4A843;
+            --white: #FFFFFF;
+            --light: #F1F5F9;
+            --gray: #94A3B8;
+            --dark-gray: #64748B;
+            --gradient-1: linear-gradient(135deg, #0A1628 0%, #1E40AF 100%);
+            --gradient-2: linear-gradient(135deg, #0D9488 0%, #1E40AF 100%);
+            --gradient-3: linear-gradient(135deg, #D4A843 0%, #F59E0B 100%);
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        /* ============ RESET ============ */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--primary);
+            color: var(--white);
+            overflow-x: hidden;
+            line-height: 1.7;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        ul { list-style: none; }
+        img { max-width: 100%; height: auto; }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* ============ SCROLLBAR ============ */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--primary); }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 10px;
+        }
+
+        /* ============ PRELOADER ============ */
+        #preloader {
+            position: fixed;
+            inset: 0;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 30px;
+            z-index: 999999;
+            transition: all 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+
+        #preloader.loaded {
+            opacity: 0;
+            visibility: hidden;
+            transform: scale(1.1);
+        }
+
+        .loader-heartbeat {
+            position: relative;
+            width: 200px;
+            height: 80px;
+        }
+
+        .loader-heartbeat svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .loader-heartbeat .line {
+            fill: none;
+            stroke: var(--accent);
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-dasharray: 600;
+            stroke-dashoffset: 600;
+            animation: drawLine 2s ease-in-out infinite;
+        }
+
+        @keyframes drawLine {
+            0% { stroke-dashoffset: 600; opacity: 1; }
+            45% { stroke-dashoffset: 0; opacity: 1; }
+            55% { stroke-dashoffset: 0; opacity: 1; }
+            100% { stroke-dashoffset: -600; opacity: 0.3; }
+        }
+
+        .loader-logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: var(--gradient-2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+        }
+
+        .loader-dots {
+            display: flex;
+            gap: 8px;
+        }
+
+        .loader-dots span {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--accent);
+            animation: dotPulse 1.4s ease-in-out infinite;
+        }
+
+        .loader-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .loader-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes dotPulse {
+            0%, 80%, 100% { transform: scale(0.3); opacity: 0.3; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        /* ============ CUSTOM CURSOR ============ */
+        .cursor-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 999998;
+            transition: transform 0.1s;
+            mix-blend-mode: difference;
+        }
+
+        .cursor-ring {
+            width: 40px;
+            height: 40px;
+            border: 2px solid var(--accent);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 999997;
+            transition: all 0.15s ease-out;
+            mix-blend-mode: difference;
+        }
+
+        .cursor-ring.hover {
+            transform: scale(1.5);
+            border-color: var(--gold);
+            background: rgba(212, 168, 67, 0.1);
+        }
+
+        /* ============ PARTICLES BACKGROUND ============ */
+        #particles-container {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: var(--accent);
+            opacity: 0.15;
+            animation: float linear infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.15; }
+            90% { opacity: 0.15; }
+            100% { transform: translateY(-100px) rotate(720deg); opacity: 0; }
+        }
+
+        /* ============ NAVBAR ============ */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10000;
+            padding: 20px 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .navbar.scrolled {
+            background: rgba(10, 22, 40, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 12px 0;
+            box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .navbar .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 800;
+            z-index: 100;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-2);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transform: rotate(-5deg);
+            box-shadow: 0 5px 20px rgba(13, 148, 136, 0.4);
+        }
+
+        .logo-text span {
+            background: var(--gradient-2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-sub {
+            font-size: 0.65rem;
+            color: var(--gray);
+            font-weight: 400;
+            letter-spacing: 2px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .nav-links a {
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--gray);
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--white);
+            background: var(--glass);
+        }
+
+        .nav-links a.active::after {
+            content: '';
+            position: absolute;
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 3px;
+            background: var(--accent);
+            border-radius: 10px;
+        }
+
+        .nav-cta {
+            background: var(--gradient-2) !important;
+            color: var(--white) !important;
+            padding: 12px 28px !important;
+            border-radius: 14px !important;
+            box-shadow: 0 5px 20px rgba(13, 148, 136, 0.3);
+            transition: all 0.3s !important;
+        }
+
+        .nav-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(13, 148, 136, 0.5) !important;
+        }
+
+        /* Mobile Menu */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            cursor: pointer;
+            z-index: 100;
+            padding: 10px;
+        }
+
+        .menu-toggle span {
+            width: 28px;
+            height: 3px;
+            background: var(--white);
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .menu-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 7px);
+        }
+        .menu-toggle.active span:nth-child(2) { opacity: 0; }
+        .menu-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -7px);
+        }
+
+        .mobile-menu {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 22, 40, 0.98);
+            backdrop-filter: blur(30px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            z-index: 99;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s;
+        }
+
+        .mobile-menu.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .mobile-menu a {
+            font-size: 1.3rem;
+            font-weight: 700;
+            padding: 12px 30px;
+            color: var(--gray);
+            transition: all 0.3s;
+        }
+
+        .mobile-menu a:hover { color: var(--accent); }
+
+        /* ============ HERO SECTION ============ */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            padding-top: 100px;
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+        }
+
+        .hero-bg::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 30% 50%, rgba(13, 148, 136, 0.15) 0%, transparent 60%),
+                        radial-gradient(ellipse at 70% 50%, rgba(30, 64, 175, 0.15) 0%, transparent 60%);
+            z-index: 1;
+        }
+
+        .hero-mesh {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            filter: blur(100px);
+            animation: meshFloat 8s ease-in-out infinite;
+        }
+
+        .mesh-1 {
+            top: -200px;
+            right: -200px;
+            background: rgba(13, 148, 136, 0.2);
+        }
+
+        .mesh-2 {
+            bottom: -200px;
+            left: -200px;
+            background: rgba(30, 64, 175, 0.2);
+            animation-delay: -4s;
+        }
+
+        .mesh-3 {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            height: 400px;
+            background: rgba(212, 168, 67, 0.08);
+            animation-delay: -2s;
+        }
+
+        @keyframes meshFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -30px) scale(1.05); }
+            50% { transform: translate(-20px, 20px) scale(0.95); }
+            75% { transform: translate(20px, 10px) scale(1.02); }
+        }
+
+        .hero .container {
+            position: relative;
+            z-index: 2;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .hero-content {
+            max-width: 600px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            color: var(--accent);
+            margin-bottom: 25px;
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-badge .dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: blink 1.5s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .hero h1 {
+            font-size: 3.2rem;
+            font-weight: 900;
+            line-height: 1.2;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 .highlight {
+            background: var(--gradient-2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+        }
+
+        .hero h1 .gold {
+            background: var(--gradient-3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-desc {
+            font-size: 1.1rem;
+            color: var(--gray);
+            line-height: 1.9;
+            margin-bottom: 35px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 50px;
+        }
+
+        .btn {
+            padding: 15px 35px;
+            border-radius: 16px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: var(--gradient-2);
+            color: var(--white);
+            box-shadow: 0 8px 30px rgba(13, 148, 136, 0.35);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(13, 148, 136, 0.5);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--white);
+            border: 2px solid var(--glass-border);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--accent);
+            background: rgba(13, 148, 136, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .btn .btn-ripple {
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,0.2);
+            border-radius: inherit;
+            transform: scale(0);
+            animation: ripple 0.6s ease-out;
+        }
+
+        @keyframes ripple {
+            to { transform: scale(2.5); opacity: 0; }
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 30px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: 900;
+            background: var(--gradient-2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-top: 5px;
+        }
+
+        .stat-divider {
+            width: 1px;
+            background: var(--glass-border);
+        }
+
+        /* Hero Visual */
+        .hero-visual {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hero-3d-card {
+            width: 100%;
+            max-width: 500px;
+            aspect-ratio: 4/3;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            backdrop-filter: blur(20px);
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.3s ease;
+        }
+
+        .hero-3d-card .card-icon {
+            width: 100px;
+            height: 100px;
+            background: var(--gradient-2);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin-bottom: 25px;
+            box-shadow: 0 20px 40px rgba(13, 148, 136, 0.3);
+            animation: iconFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes iconFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .hero-3d-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+
+        .hero-3d-card p {
+            color: var(--gray);
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .floating-card {
+            position: absolute;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 18px 22px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: cardFloat 4s ease-in-out infinite;
+            box-shadow: var(--shadow);
+        }
+
+        .floating-card:nth-child(2) {
+            top: 10%;
+            right: -30px;
+            animation-delay: -1s;
+        }
+
+        .floating-card:nth-child(3) {
+            bottom: 15%;
+            left: -40px;
+            animation-delay: -2s;
+        }
+
+        .floating-card:nth-child(4) {
+            bottom: 5%;
+            right: 10%;
+            animation-delay: -3s;
+        }
+
+        @keyframes cardFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+        }
+
+        .floating-card .fc-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .fc-green { background: rgba(13, 148, 136, 0.2); color: var(--accent); }
+        .fc-blue { background: rgba(30, 64, 175, 0.2); color: var(--secondary); }
+        .fc-gold { background: rgba(212, 168, 67, 0.2); color: var(--gold); }
+
+        .floating-card .fc-text {
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .floating-card .fc-sub {
+            font-size: 0.7rem;
+            color: var(--gray);
+        }
+
+        /* ============ SECTION STYLES ============ */
+        section {
+            padding: 100px 0;
+            position: relative;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 70px;
+        }
+
+        .section-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            padding: 8px 22px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            color: var(--accent);
+            margin-bottom: 20px;
+        }
+
+        .section-header h2 {
+            font-size: 2.8rem;
+            font-weight: 900;
+            margin-bottom: 15px;
+            line-height: 1.3;
+        }
+
+        .section-header h2 .highlight {
+            background: var(--gradient-2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .section-header p {
+            font-size: 1.1rem;
+            color: var(--gray);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* ============ ABOUT SECTION ============ */
+        .about {
+            background: var(--primary-light);
+        }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .about-image {
+            position: relative;
+            border-radius: 30px;
+            overflow: hidden;
+        }
+
+        .about-image-main {
+            width: 100%;
+            height: 450px;
+            background: var(--gradient-2);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+            position: relative;
+        }
+
+        .about-image-main::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='40' fill='none' stroke='rgba(255,255,255,0.1)' stroke-width='0.5'/%3E%3Ccircle cx='50' cy='50' r='30' fill='none' stroke='rgba(255,255,255,0.08)' stroke-width='0.5'/%3E%3Ccircle cx='50' cy='50' r='20' fill='none' stroke='rgba(255,255,255,0.05)' stroke-width='0.5'/%3E%3C/svg%3E");
+            background-size: cover;
+        }
+
+        .experience-badge {
+            position: absolute;
+            bottom: -20px;
+            left: 30px;
+            background: var(--gradient-3);
+            padding: 20px 30px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .experience-badge .number {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--primary);
+            line-height: 1;
+        }
+
+        .experience-badge .text {
+            font-size: 0.8rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .about-content h3 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.3;
+        }
+
+        .about-content p {
+            color: var(--gray);
+            font-size: 1rem;
+            margin-bottom: 25px;
+            line-height: 1.9;
+        }
+
+        .about-features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .about-feature {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 14px;
+            transition: all 0.3s;
+        }
+
+        .about-feature:hover {
+            border-color: var(--accent);
+            background: rgba(13, 148, 136, 0.05);
+            transform: translateX(-5px);
+        }
+
+        .about-feature i {
+            color: var(--accent);
+            font-size: 1.1rem;
+        }
+
+        .about-feature span {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        /* ============ SERVICES SECTION ============ */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .service-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 35px 30px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-2);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s;
+        }
+
+        .service-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(13, 148, 136, 0.3);
+            box-shadow: 0 20px 60px rgba(13, 148, 136, 0.15);
+        }
+
+        .service-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            transition: all 0.4s;
+        }
+
+        .service-card:hover .service-icon {
+            transform: scale(1.1) rotate(-5deg);
+        }
+
+        .si-1 { background: rgba(13, 148, 136, 0.15); color: var(--accent); }
+        .si-2 { background: rgba(30, 64, 175, 0.15); color: var(--secondary); }
+        .si-3 { background: rgba(212, 168, 67, 0.15); color: var(--gold); }
+        .si-4 { background: rgba(239, 68, 68, 0.15); color: #EF4444; }
+        .si-5 { background: rgba(139, 92, 246, 0.15); color: #8B5CF6; }
+        .si-6 { background: rgba(236, 72, 153, 0.15); color: #EC4899; }
+
+        .service-card h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .service-card p {
+            color: var(--gray);
+            font-size: 0.9rem;
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+
+        .service-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent);
+            font-size: 0.9rem;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        .service-link:hover {
+            gap: 14px;
+        }
+
+        /* ============ STATS SECTION ============ */
+        .stats-section {
+            background: var(--gradient-1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stats-section::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cpath d='M 0 50 Q 50 0 100 50 Q 150 100 200 50 L 200 200 L 0 200 Z' fill='rgba(255,255,255,0.02)'/%3E%3C/svg%3E");
+            background-size: 200px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 40px 20px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            backdrop-filter: blur(20px);
+            transition: all 0.4s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent);
+        }
+
+        .stat-card .stat-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            background: var(--gradient-2);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .stat-card .count {
+            font-size: 3rem;
+            font-weight: 900;
+            background: var(--gradient-2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .stat-card .stat-text {
+            color: var(--gray);
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        /* ============ LOCATIONS SECTION ============ */
+        .locations {
+            background: var(--primary-light);
+        }
+
+        .map-container {
+            position: relative;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            padding: 40px;
+            margin-bottom: 50px;
+            overflow: hidden;
+        }
+
+        .egypt-map {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            display: block;
+            position: relative;
+        }
+
+        .egypt-map svg {
+            width: 100%;
+            height: auto;
+        }
+
+        .map-pin {
+            position: absolute;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .map-pin:hover {
+            transform: scale(1.3);
+        }
+
+        .map-pin .pin-dot {
+            width: 16px;
+            height: 16px;
+            background: var(--accent);
+            border-radius: 50%;
+            border: 3px solid var(--white);
+            box-shadow: 0 0 20px rgba(13, 148, 136, 0.5);
+            animation: pinPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pinPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(13, 148, 136, 0.4); }
+            50% { box-shadow: 0 0 0 12px rgba(13, 148, 136, 0); }
+        }
+
+        .locations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .location-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            overflow: hidden;
+            transition: all 0.4s;
+        }
+
+        .location-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent);
+            box-shadow: 0 20px 50px rgba(13, 148, 136, 0.15);
+        }
+
+        .location-img {
+            height: 200px;
+            background: var(--gradient-2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            position: relative;
+        }
+
+        .location-tag {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(13, 148, 136, 0.9);
+            padding: 5px 15px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .location-info {
+            padding: 25px;
+        }
+
+        .location-info h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .location-info .loc-address {
+            color: var(--gray);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .location-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .location-tags span {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            color: var(--accent);
+        }
+
+        /* ============ TEAM SECTION ============ */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 30px;
+        }
+
+        .team-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 35px 25px;
+            text-align: center;
+            transition: all 0.4s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .team-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--accent);
+        }
+
+        .team-avatar {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            background: var(--gradient-2);
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            border: 4px solid var(--glass-border);
+            transition: all 0.4s;
+        }
+
+        .team-card:hover .team-avatar {
+            border-color: var(--accent);
+            transform: scale(1.05);
+        }
+
+        .team-card h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .team-card .role {
+            color: var(--accent);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .team-card .bio {
+            color: var(--gray);
+            font-size: 0.85rem;
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+
+        .team-socials {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .team-socials a {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            color: var(--gray);
+            transition: all 0.3s;
+        }
+
+        .team-socials a:hover {
+            background: var(--accent);
+            color: var(--white);
+            border-color: var(--accent);
+            transform: translateY(-3px);
+        }
+
+        /* ============ TESTIMONIALS ============ */
+        .testimonials {
+            background: var(--primary-light);
+        }
+
+        .testimonials-slider {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .testimonial-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 35px;
+            transition: all 0.4s;
+            position: relative;
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--gold);
+        }
+
+        .testimonial-card .quote-icon {
+            font-size: 2.5rem;
+            color: var(--gold);
+            opacity: 0.3;
+            margin-bottom: 15px;
+        }
+
+        .testimonial-card .quote-text {
+            color: var(--gray);
+            font-size: 1rem;
+            line-height: 1.9;
+            margin-bottom: 25px;
+            font-style: italic;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .testimonial-author .avatar {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background: var(--gradient-2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+
+        .testimonial-author .name {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .testimonial-author .position {
+            color: var(--accent);
+            font-size: 0.8rem;
+        }
+
+        .testimonial-stars {
+            color: var(--gold);
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+
+        /* ============ CTA SECTION ============ */
+        .cta-section {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-box {
+            background: var(--gradient-2);
+            border-radius: 30px;
+            padding: 80px 60px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-box::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='80' cy='20' r='50' fill='rgba(255,255,255,0.03)'/%3E%3Ccircle cx='20' cy='80' r='40' fill='rgba(255,255,255,0.02)'/%3E%3C/svg%3E");
+            background-size: cover;
+        }
+
+        .cta-box > * { position: relative; z-index: 1; }
+
+        .cta-box h2 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 15px;
+        }
+
+        .cta-box p {
+            font-size: 1.1rem;
+            opacity: 0.85;
+            margin-bottom: 35px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn-white {
+            background: var(--white);
+            color: var(--primary);
+            padding: 15px 35px;
+            border-radius: 16px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-white:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--white);
+            padding: 15px 35px;
+            border-radius: 16px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+
+        .btn-ghost:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.6);
+            transform: translateY(-3px);
+        }
+
+        /* ============ FAQ SECTION ============ */
+        .faq-list {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .faq-item {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .faq-item.active {
+            border-color: var(--accent);
+        }
+
+        .faq-question {
+            padding: 22px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .faq-question:hover { color: var(--accent); }
+
+        .faq-question .faq-toggle {
+            width: 35px;
+            height: 35px;
+            border-radius: 10px;
+            background: var(--glass);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .faq-item.active .faq-toggle {
+            background: var(--accent);
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .faq-answer-inner {
+            padding: 0 28px 22px;
+            color: var(--gray);
+            line-height: 1.9;
+            font-size: 0.95rem;
+        }
+
+        /* ============ CONTACT SECTION ============ */
+        .contact {
+            background: var(--primary-light);
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        .contact-info-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .contact-info-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 25px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: all 0.3s;
+        }
+
+        .contact-info-card:hover {
+            border-color: var(--accent);
+            transform: translateX(-5px);
+        }
+
+        .contact-info-card .ci-icon {
+            width: 55px;
+            height: 55px;
+            border-radius: 16px;
+            background: var(--gradient-2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .contact-info-card h4 {
+            font-size: 0.85rem;
+            color: var(--gray);
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .contact-info-card p {
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .contact-form-wrapper {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 40px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--gray);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 14px 20px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 14px;
+            color: var(--white);
+            font-family: 'Cairo', sans-serif;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            outline: none;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(13, 148, 136, 0.15);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .form-group select {
+            appearance: none;
+            cursor: pointer;
+        }
+
+        .form-group select option {
+            background: var(--primary);
+        }
+
+        /* ============ FOOTER ============ */
+        .footer {
+            background: var(--primary);
+            border-top: 1px solid var(--glass-border);
+            padding: 80px 0 30px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+
+        .footer-brand .logo {
+            margin-bottom: 20px;
+        }
+
+        .footer-brand p {
+            color: var(--gray);
+            font-size: 0.9rem;
+            line-height: 1.8;
+            margin-bottom: 25px;
+        }
+
+        .footer-socials {
+            display: flex;
+            gap: 10px;
+        }
+
+        .footer-socials a {
+            width: 45px;
+            height: 45px;
+            border-radius: 14px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: var(--gray);
+            transition: all 0.3s;
+        }
+
+        .footer-socials a:hover {
+            background: var(--accent);
+            color: var(--white);
+            border-color: var(--accent);
+            transform: translateY(-3px);
+        }
+
+        .footer-col h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--white);
+        }
+
+        .footer-col ul {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .footer-col ul a {
+            color: var(--gray);
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer-col ul a:hover {
+            color: var(--accent);
+            padding-right: 5px;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid var(--glass-border);
+            padding-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .footer-bottom p {
+            color: var(--gray);
+            font-size: 0.85rem;
+        }
+
+        .footer-bottom-links {
+            display: flex;
+            gap: 25px;
+        }
+
+        .footer-bottom-links a {
+            color: var(--gray);
+            font-size: 0.85rem;
+            transition: color 0.3s;
+        }
+
+        .footer-bottom-links a:hover { color: var(--accent); }
+
+        /* ============ SCROLL TO TOP ============ */
+        .scroll-top {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            width: 50px;
+            height: 50px;
+            border-radius: 16px;
+            background: var(--gradient-2);
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            border: none;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+            transition: all 0.4s;
+            z-index: 9999;
+            box-shadow: 0 5px 20px rgba(13, 148, 136, 0.4);
+        }
+
+        .scroll-top.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .scroll-top:hover {
+            transform: translateY(-3px);
+        }
+
+        /* ============ WHATSAPP FLOAT ============ */
+        .whatsapp-float {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #25D366;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            z-index: 9999;
+            box-shadow: 0 5px 25px rgba(37, 211, 102, 0.4);
+            transition: all 0.3s;
+            animation: whatsappPulse 2s infinite;
+        }
+
+        .whatsapp-float:hover {
+            transform: scale(1.1);
+        }
+
+        @keyframes whatsappPulse {
+            0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(37, 211, 102, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+        }
+
+        /* ============ RESPONSIVE ============ */
+        @media (max-width: 1024px) {
+            .hero .container {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            .hero-content { max-width: 100%; }
+            .hero-buttons { justify-content: center; }
+            .hero-stats { justify-content: center; }
+            .hero-visual { display: none; }
+            .about-grid { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .footer-grid { grid-template-columns: 1fr 1fr; }
+            .contact-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .menu-toggle { display: flex; }
+
+            .hero h1 { font-size: 2.2rem; }
+            .section-header h2 { font-size: 2rem; }
+            .cta-box { padding: 50px 25px; }
+            .cta-box h2 { font-size: 1.8rem; }
+
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; }
+            .stat-card { padding: 25px 15px; }
+            .stat-card .count { font-size: 2rem; }
+
+            .services-grid { grid-template-columns: 1fr; }
+            .testimonials-slider { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; }
+            .footer-grid { grid-template-columns: 1fr; }
+            .footer-bottom { flex-direction: column; text-align: center; }
+
+            .about-features { grid-template-columns: 1fr; }
+            .hero-stats { flex-wrap: wrap; }
+
+            .cursor-dot, .cursor-ring { display: none; }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 { font-size: 1.8rem; }
+            .section-header h2 { font-size: 1.6rem; }
+            .hero-buttons { flex-direction: column; }
+            .btn { width: 100%; justify-content: center; }
+            .cta-buttons { flex-direction: column; align-items: center; }
+            .btn-white, .btn-ghost { width: 100%; justify-content: center; }
+        }
+
+        /* ============ ANIMATIONS ============ */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal-right {
+            opacity: 0;
+            transform: translateX(60px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .reveal-right.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .reveal-left {
+            opacity: 0;
+            transform: translateX(-60px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .reveal-left.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* ============ TIMELINE ============ */
+        .timeline {
+            position: relative;
+            padding: 40px 0;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            right: 50%;
+            width: 3px;
+            background: var(--glass-border);
+            transform: translateX(50%);
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .timeline-item:nth-child(odd) {
+            flex-direction: row-reverse;
+            text-align: left;
+        }
+
+        .timeline-item:nth-child(even) {
+            text-align: right;
+        }
+
+        .timeline-content {
+            width: 45%;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 25px;
+            transition: all 0.3s;
+        }
+
+        .timeline-content:hover {
+            border-color: var(--accent);
+            transform: translateY(-5px);
+        }
+
+        .timeline-dot {
+            position: absolute;
+            right: 50%;
+            transform: translateX(50%);
+            width: 20px;
+            height: 20px;
+            background: var(--accent);
+            border-radius: 50%;
+            border: 4px solid var(--primary-light);
+            z-index: 1;
+        }
+
+        .timeline-year {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+
+        .timeline-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .timeline-desc {
+            color: var(--gray);
+            font-size: 0.85rem;
+        }
+
+        /* ============ PARTNERS LOGOS ============ */
+        .partners-slider {
+            overflow: hidden;
+            padding: 30px 0;
+        }
+
+        .partners-track {
+            display: flex;
+            gap: 50px;
+            animation: scroll 20s linear infinite;
+        }
+
+        .partner-logo {
+            min-width: 150px;
+            height: 80px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: var(--gray);
+            font-weight: 700;
+            padding: 0 20px;
+            transition: all 0.3s;
+        }
+
+        .partner-logo:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+            </style>
+</head>
+<body>
+
+    <!-- ============ PRELOADER ============ -->
+    <div id="preloader">
+        <div class="loader-heartbeat">
+            <svg viewBox="0 0 200 60">
+                <polyline class="line" points="0,30 30,30 40,30 50,10 60,50 70,20 80,40 90,30 120,30 130,30 140,10 150,50 160,20 170,40 180,30 200,30"/>
+            </svg>
+        </div>
+        <div class="loader-logo">ميديكال بلس</div>
+        <div class="loader-dots">
+            <span></span><span></span><span></span>
+        </div>
+    </div>
+
+    <!-- ============ CUSTOM CURSOR ============ -->
+    <div class="cursor-dot" id="cursorDot"></div>
+    <div class="cursor-ring" id="cursorRing"></div>
+
+    <!-- ============ PARTICLES ============ -->
+    <div id="particles-container"></div>
+
+    <!-- ============ NAVBAR ============ -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <a href="#" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-hospital"></i>
+                </div>
+                <div>
+                    <div class="logo-text"><span>ميديكال بلس</span></div>
+                    <div class="logo-sub">MEDICAL PLUS</div>
+                </div>
+            </a>
+
+            <div class="nav-links" id="navLinks">
+                <a href="#home" class="active">الرئيسية</a>
+                <a href="#about">من نحن</a>
+                <a href="#services">خدماتنا</a>
+                <a href="#stats">إنجازاتنا</a>
+                <a href="#locations">مواقعنا</a>
+                <a href="#team">فريقنا</a>
+                <a href="#testimonials">آراء العملاء</a>
+                <a href="#faq">الأسئلة الشائعة</a>
+                <a href="#contact" class="nav-cta">تواصل معنا</a>
+            </div>
+
+            <div class="menu-toggle" id="menuToggle">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <a href="#home" onclick="closeMobile()">الرئيسية</a>
+        <a href="#about" onclick="closeMobile()">من نحن</a>
+        <a href="#services" onclick="closeMobile()">خدماتنا</a>
+        <a href="#stats" onclick="closeMobile()">إنجازاتنا</a>
+        <a href="#locations" onclick="closeMobile()">مواقعنا</a>
+        <a href="#team" onclick="closeMobile()">فريقنا</a>
+        <a href="#testimonials" onclick="closeMobile()">آراء العملاء</a>
+        <a href="#faq" onclick="closeMobile()">الأسئلة الشائعة</a>
+        <a href="#contact" onclick="closeMobile()">تواصل معنا</a>
+    </div>
+
+    <!-- ============ HERO SECTION ============ -->
+    <section class="hero" id="home">
+        <div class="hero-bg">
+            <div class="hero-mesh mesh-1"></div>
+            <div class="hero-mesh mesh-2"></div>
+            <div class="hero-mesh mesh-3"></div>
+        </div>
+
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <span class="dot"></span>
+                    <span>الشركة الرائدة في إدارة المنشآت الصحية</span>
+                </div>
+
+                <h1>
+                    نحن لا ندير مستشفيات<br>
+                    نحن <span class="highlight">نُعيد تعريف</span><br>
+                    <span class="gold">الرعاية الصحية</span>
+                </h1>
+
+                <p class="hero-desc">
+                    شركة متخصصة في تقديم حلول إدارية متكاملة للمستشفيات والمراكز الطبية
+                    في جميع أنحاء مصر. نجمع بين الخبرة العالمية والفهم العميق
+                    للسوق المحلي لتحقيق أعلى معايير الجودة الصحية.
+                </p>
+
+                <div class="hero-buttons">
+                    <button class="btn btn-primary" onclick="scrollToSection('#contact')">
+                        <i class="fas fa-paper-plane"></i>
+                        اطلب استشارة مجانية
+                    </button>
+                    <button class="btn btn-outline" onclick="scrollToSection('#about')">
+                        <i class="fas fa-play-circle"></i>
+                        اكتشف المزيد
+                    </button>
+                </div>
+
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <div class="stat-number" data-target="150">0</div>
+                        <div class="stat-label">منشأة صحية</div>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <div class="stat-number" data-target="25">0</div>
+                        <div class="stat-label">محافظة</div>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <div class="stat-number" data-target="98">0</div>
+                        <div class="stat-label">% رضا العملاء</div>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <div class="stat-number" data-target="10">0</div>
+                        <div class="stat-label">سنوات خبرة</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-visual">
+                <div class="hero-3d-card" id="hero3dCard">
+                    <div class="card-icon">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                    <h3>إدارة صحية متكاملة</h3>
+                    <p>نقدم حلولاً شاملة تغطي جميع جوانب إدارة المنشآت الصحية</p>
+                </div>
+
+                <div class="floating-card">
+                    <div class="fc-icon fc-green">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div>
+                        <div class="fc-text">+40% نمو في الأرباح</div>
+                        <div class="fc-sub">متوسط تحسن العملاء</div>
+                    </div>
+                </div>
+
+                <div class="floating-card">
+                    <div class="fc-icon fc-blue">
+                        <i class="fas fa-user-md"></i>
+                    </div>
+                    <div>
+                        <div class="fc-text">+10,000 كادر طبي</div>
+                        <div class="fc-sub">تحت إدارتنا</div>
+                    </div>
+                </div>
+
+                <div class="floating-card">
+                    <div class="fc-icon fc-gold">
+                        <i class="fas fa-award"></i>
+                    </div>
+                    <div>
+                        <div class="fc-text">معتمدون دولياً</div>
+                        <div class="fc-sub">JCI & ISO Certified</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ PARTNERS LOGOS ============ -->
+    <section style="padding: 40px 0; background: var(--primary-light); border-top: 1px solid var(--glass-border); border-bottom: 1px solid var(--glass-border);">
+        <div class="container">
+            <p style="text-align: center; color: var(--gray); font-size: 0.9rem; margin-bottom: 25px;">شركاء النجاح الذين نفخر بالعمل معهم</p>
+            <div class="partners-slider">
+                <div class="partners-track">
+                    <div class="partner-logo">🏥 مستشفى القاهرة التخصصي</div>
+                    <div class="partner-logo">🏥 مركز الدلتا الطبي</div>
+                    <div class="partner-logo">🏥 مستشفى النيل</div>
+                    <div class="partner-logo">🏥 المركز الطبي العالمي</div>
+                    <div class="partner-logo">🏥 مستشفى الصفوة</div>
+                    <div class="partner-logo">🏥 مركز الحياة</div>
+                    <div class="partner-logo">🏥 مستشفى الشفاء</div>
+                    <div class="partner-logo">🏥 المركز التخصصي</div>
+                    <!-- Duplicate for seamless scroll -->
+                    <div class="partner-logo">🏥 مستشفى القاهرة التخصصي</div>
+                    <div class="partner-logo">🏥 مركز الدلتا الطبي</div>
+                    <div class="partner-logo">🏥 مستشفى النيل</div>
+                    <div class="partner-logo">🏥 المركز الطبي العالمي</div>
+                    <div class="partner-logo">🏥 مستشفى الصفوة</div>
+                    <div class="partner-logo">🏥 مركز الحياة</div>
+                    <div class="partner-logo">🏥 مستشفى الشفاء</div>
+                    <div class="partner-logo">🏥 المركز التخصصي</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ ABOUT SECTION ============ -->
+    <section class="about" id="about">
+        <div class="container">
+            <div class="about-grid">
+                <div class="about-image reveal-left">
+                    <div class="about-image-main">
+                        <i class="fas fa-hospital-alt"></i>
+                    </div>
+                    <div class="experience-badge">
+                        <div class="number">+10</div>
+                        <div class="text">سنوات من الخبرة</div>
+                    </div>
+                </div>
+
+                <div class="about-content reveal-right">
+                    <div class="section-badge">
+                        <i class="fas fa-info-circle"></i>
+                        <span>من نحن</span>
+                    </div>
+
+                    <h3>
+                        شريكك الموثوق في<br>
+                        <span style="background: var(--gradient-2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">إدارة المنشآت الصحية</span>
+                    </h3>
+
+                    <p>
+                        ميديكال بلس هي شركة رائدة في مجال إدارة المستشفيات والمراكز الطبية
+                        في مصر. تأسست برؤية طموحة لتطوير قطاع الرعاية الصحية من خلال
+                        تطبيق أحدث المعايير العالمية في الإدارة الصحية.
+                    </p>
+
+                    <p>
+                        نمتلك فريقاً من أمهر الخبراء والاستشاريين في مجالات الإدارة الصحية،
+                        التخطيط الاستراتيجي، الجودة، والتحول الرقمي، مما يمكننا من تقديم
+                        حلول مبتكرة ومخصصة لكل منشأة صحية.
+                    </p>
+
+                    <div class="about-features">
+                        <div class="about-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>معايير عالمية</span>
+                        </div>
+                        <div class="about-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>فريق متخصص</span>
+                        </div>
+                        <div class="about-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>حلول مبتكرة</span>
+                        </div>
+                        <div class="about-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>دعم مستمر 24/7</span>
+                        </div>
+                        <div class="about-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>اعتمادات JCI</span>
+                        </div>
+                        <div class="about-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>تحول رقمي</span>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="scrollToSection('#contact')">
+                        <i class="fas fa-arrow-left"></i>
+                        تعرف علينا أكثر
+                    </button>
+                </div>
+            </div>
+
+            <!-- Timeline -->
+            <div style="margin-top: 100px;">
+                <div class="section-header">
+                    <div class="section-badge">
+                        <i class="fas fa-history"></i>
+                        <span>مسيرتنا</span>
+                    </div>
+                    <h2>رحلة <span class="highlight">النجاح</span></h2>
+                </div>
+
+                <div class="timeline">
+                    <div class="timeline-item reveal">
+                        <div class="timeline-content">
+                            <div class="timeline-year">2015</div>
+                            <div class="timeline-title">التأسيس</div>
+                            <div class="timeline-desc">تأسيس الشركة برؤية لتغيير مفهوم إدارة المنشآت الصحية في مصر</div>
+                        </div>
+                        <div class="timeline-dot"></div>
+                    </div>
+
+                    <div class="timeline-item reveal">
+                        <div class="timeline-content">
+                            <div class="timeline-year">2017</div>
+                            <div class="timeline-title">أول عقد كبير</div>
+                            <div class="timeline-desc">توقيع أول عقد لإدارة مستشفى كبير في القاهرة الكبرى</div>
+                        </div>
+                        <div class="timeline-dot"></div>
+                    </div>
+
+                    <div class="timeline-item reveal">
+                        <div class="timeline-content">
+                            <div class="timeline-year">2019</div>
+                            <div class="timeline-title">التوسع الإقليمي</div>
+                            <div class="timeline-desc">التوسع لإدارة مراكز طبية في الصعيد والدلتا والساحل</div>
+                        </div>
+                        <div class="timeline-dot"></div>
+                    </div>
+
+                    <div class="timeline-item reveal">
+                        <div class="timeline-content">
+                            <div class="timeline-year">2021</div>
+                            <div class="timeline-title">الاعتماد الدولي</div>
+                            <div class="timeline-desc">الحصول على اعتماد JCI وشهادات ISO في إدارة الجودة</div>
+                        </div>
+                        <div class="timeline-dot"></div>
+                    </div>
+
+                    <div class="timeline-item reveal">
+                        <div class="timeline-content">
+                            <div class="timeline-year">2024</div>
+                            <div class="timeline-title">الريادة والابتكار</div>
+                            <div class="timeline-desc">أكثر من 150 منشأة صحية تحت إدارتنا في 25 محافظة مصرية</div>
+                        </div>
+                        <div class="timeline-dot"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ SERVICES SECTION ============ -->
+    <section class="services" id="services">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge">
+                    <i class="fas fa-cogs"></i>
+                    <span>خدماتنا</span>
+                </div>
+                <h2>حلول <span class="highlight">متكاملة</span> لإدارة منشأتك</h2>
+                <p>نقدم باقة شاملة من الخدمات التي تغطي جميع جوانب إدارة المنشآت الصحية</p>
+            </div>
+
+            <div class="services-grid">
+                <div class="service-card reveal" style="transition-delay: 0.1s;">
+                    <div class="service-icon si-1">
+                        <i class="fas fa-hospital"></i>
+                    </div>
+                    <h3>إدارة المستشفيات الشاملة</h3>
+                    <p>إدارة تشغيلية كاملة للمستشفيات تشمل جميع الأقسام الطبية والإدارية والمالية</p>
+                    <a href="#" class="service-link">
+                        اعرف المزيد <i class="fas fa-arrow-left"></i>
+                    </a>
+                </div>
+
+                <div class="service-card reveal" style="transition-delay: 0.2s;">
+                    <div class="service-icon si-2">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <h3>التخطيط الاستراتيجي</h3>
+                    <p>وضع خطط تطوير طويلة المدى وقصيرة المدى مبنية على تحليل دقيق للسوق</p>
+                    <a href="#" class="service-link">
+                        اعرف المزيد <i class="fas fa-arrow-left"></i>
+                    </a>
+                </div>
+
+                <div class="service-card reveal" style="transition-delay: 0.3s;">
+                    <div class="service-icon si-3">
+                        <i class="fas fa-user-md"></i>
+                    </div>
+                    <h3>إدارة الكوادر الطبية</h3>
+                    <p>استقطاب وتوظيف وتدريب وتطوير الطواقم الطبية والتمريضية بأعلى المعايير</p>
+                    <a href="#" class="service-link">
+                        اعرف المزيد <i class="fas fa-arrow-left"></i>
+                    </a>
+                </div>
+
+                <div class="service-card reveal" style="transition-delay: 0.4s;">
+                    <div class="service-icon si-4">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <h3>الإدارة المالية</h3>
+                    <p>تحسين الأداء المالي وتقليل التكاليف التشغيلية مع زيادة الإيرادات</p>
+                    <a href="#" class="service-link">
+                        اعرف المزيد <i class="fas fa-arrow-left"></i>
+                    </a>
+                </div>
+
+                <div class="service-card reveal" style="transition-delay: 0.5s;">
+                    <div class="service-icon si-5">
+                        <i class="fas fa-award"></i>
+                    </div>
+                    <h3>الجودة والاعتماد</h3>
+                    <p>تأهيل المنشآت للحصول على اعتمادات JCI و CBAHI و ISO وغيرها</p>
+                    <a href="#" class="service-link">
+                        اعرف المزيد <i class="fas fa-arrow-left"></i>
+                    </a>
+                </div>
+
+                <div class="service-card reveal" style="transition-delay: 0.6s;">
+                    <div class="service-icon si-6">
+                        <i class="fas fa-laptop-medical"></i>
+                    </div>
+                    <h3>التحول الرقمي</h3>
+                    <p>تطبيق أنظمة HIS و ERP والسجلات الطبية الإلكترونية والطب عن بُعد</p>
+                    <a href="#" class="service-link">
+                        اعرف المزيد <i class="fas fa-arrow-left"></i>
+                    </a>
+                </div>
+
+                <div class="service-card reveal" style="transition-delay: 0.7s;">
+                    <div class="service-icon si-1">
+                        <i class="fas fa-truck-medical"></i>
+                    </div>
+                    <h3>إدارة سلاسل الإمداد</h3>
+                    <p>توريد المستلزمات والأجهزة الطبية وإدارة المخازن بكفاءة عالية</p>
+                    <a href="#" class="service-link">
+                        اعرف المزيد <i class="fas fa-arrow-left"></i>
+                    </a>
+                </div>
+
+                <div class="service-card reveal" style="transition-delay: 0.8s;">
+                    <div class="service-icon si-2">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h3>التدريب والتطوير</h3>
+                    <p>برامج تدريبية متخصصة للكوادر الطبية والإدارية بشهادات معتمدة</p>
+                    <a href="#" class="service-link">
+                        اعرف المزيد <i class="fas fa-arrow-left"></i>
+                    </a>
+                </div>
+
+                <div class="service-card reveal" style="transition-delay: 0.9s;">
+                    <div class="service-icon si-3">
+                        <i class="fas fa-bullhorn"></i>
+                    </div>
+                    <h3>التسويق الصحي</h3>
+                    <p>استراتيجيات تسويقية متخصصة لبناء العلامة التجارية للمنشأة الصحية</p>
+                    <a href="#" class="service-link">
+                        اعرف المزيد <i class="fas fa-arrow-left"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ STATS SECTION ============ -->
+    <section class="stats-section" id="stats">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>أرقامنا تتحدث</span>
+                </div>
+                <h2>إنجازات <span class="highlight">نفخر</span> بها</h2>
+                <p>أرقام حقيقية تعكس حجم تأثيرنا في قطاع الرعاية الصحية المصري</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card reveal" style="transition-delay: 0.1s;">
+                    <div class="stat-icon">
+                        <i class="fas fa-hospital"></i>
+                    </div>
+                    <div class="count" data-target="150">0</div>
+                    <div class="stat-text">منشأة صحية تحت إدارتنا</div>
+                </div>
+
+                <div class="stat-card reveal" style="transition-delay: 0.2s;">
+                    <div class="stat-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="count" data-target="25">0</div>
+                    <div class="stat-text">محافظة في مصر</div>
+                </div>
+
+                <div class="stat-card reveal" style="transition-delay: 0.3s;">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="count" data-target="10000">0</div>
+                    <div class="stat-text">كادر طبي وإداري</div>
+                </div>
+
+                <div class="stat-card reveal" style="transition-delay: 0.4s;">
+                    <div class="stat-icon">
+                        <i class="fas fa-smile"></i>
+                    </div>
+                    <div class="count" data-target="98">0</div>
+                    <div class="stat-text">% نسبة رضا العملاء</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ LOCATIONS SECTION ============ -->
+    <section class="locations" id="locations">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge">
+                    <i class="fas fa-map-marked-alt"></i>
+                    <span>تواجدنا في مصر</span>
+                </div>
+                <h2>نصل إليك <span class="highlight">أينما كنت</span></h2>
+                <p>نغطي جميع أنحاء جمهورية مصر العربية بشبكة واسعة من المنشآت الصحية</p>
+            </div>
+
+            <!-- Interactive Map Placeholder -->
+            <div class="map-container reveal">
+                <div style="text-align: center; padding: 40px;">
+                    <div style="font-size: 4rem; margin-bottom: 20px;">🗺️</div>
+                    <h3 style="font-size: 1.5rem; margin-bottom: 10px;">خريطة مصر التفاعلية</h3>
+                    <p style="color: var(--gray); max-width: 500px; margin: 0 auto;">
+                        اضغط على أي محافظة لتتعرف على المنشآت الصحية التي نديرها هناك
+                    </p>
+
+                    <!-- Simplified Egypt Map Pins -->
+                    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-top: 30px;">
+                        <div class="location-pin-btn" onclick="showLocation('cairo')" style="background: var(--glass); border: 1px solid var(--glass-border); padding: 12px 20px; border-radius: 14px; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 8px;">
+                            <span style="color: var(--accent);">📍</span> القاهرة <span style="background: var(--accent); color: white; padding: 2px 8px; border-radius: 50px; font-size: 0.7rem;">12</span>
+                        </div>
+                        <div style="background: var(--glass); border: 1px solid var(--glass-border); padding: 12px 20px; border-radius: 14px; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 8px;">
+                            <span style="color: var(--accent);">📍</span> الإسكندرية <span style="background: var(--secondary); color: white; padding: 2px 8px; border-radius: 50px; font-size: 0.7rem;">8</span>
+                        </div>
+                        <div style="background: var(--glass); border: 1px solid var(--glass-border); padding: 12px 20px; border-radius: 14px; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 8px;">
+                            <span style="color: var(--accent);">📍</span> الجيزة <span style="background: var(--gold); color: var(--primary); padding: 2px 8px; border-radius: 50px; font-size: 0.7rem;">10</span>
+                        </div>
+                        <div style="background: var(--glass); border: 1px solid var(--glass-border); padding: 12px 20px; border-radius: 14px; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 8px;">
+                            <span style="color: var(--accent);">📍</span> المنصورة <span style="background: var(--accent); color: white; padding: 2px 8px; border-radius: 50px; font-size: 0.7rem;">6</span>
+                        </div>
+                        <div style="background: var(--glass); border: 1px solid var(--glass-border); padding: 12px 20px; border-radius: 14px; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 8px;">
+                            <span style="color: var(--accent);">📍</span> أسيوط <span style="background: var(--secondary); color: white; padding: 2px 8px; border-radius: 50px; font-size: 0.7rem;">5</span>
+                        </div>
+                        <div style="background: var(--glass); border: 1px solid var(--glass-border); padding: 12px 20px; border-radius: 14px; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 8px;">
+                            <span style="color: var(--accent);">📍</span> الأقصر <span style="background: var(--gold); color: var(--primary); padding: 2px 8px; border-radius: 50px; font-size: 0.7rem;">4</span>
+                        </div>
+                        <div style="background: var(--glass); border: 1px solid var(--glass-border); padding: 12px 20px; border-radius: 14px; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 8px;">
+                            <span style="color: var(--accent);">📍</span> البحر الأحمر <span style="background: var(--accent); color: white; padding: 2px 8px; border-radius: 50px; font-size: 0.7rem;">3</span>
+                        </div>
+                        <div style="background: var(--glass); border: 1px solid var(--glass-border); padding: 12px 20px; border-radius: 14px; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 8px;">
+                            <span style="color: var(--accent);">📍</span> شرم الشيخ <span style="background: var(--secondary); color: white; padding: 2px 8px; border-radius: 50px; font-size: 0.7rem;">2</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Location Cards -->
+            <div class="locations-grid">
+                <div class="location-card reveal" style="transition-delay: 0.1s;">
+                    <div class="location-img" style="background: linear-gradient(135deg, #0D9488, #065F46);">
+                        <i class="fas fa-hospital-alt"></i>
+                        <span class="location-tag">مستشفى</span>
+                    </div>
+                    <div class="location-info">
+                        <h3>مستشفى القاهرة التخصصي</h3>
+                        <div class="loc-address">
+                            <i class="fas fa-map-marker-alt"></i>
+                            القاهرة، مدينة نصر
+                        </div>
+                        <div class="location-tags">
+                            <span>جراحة عامة</span>
+                            <span>قلب</span>
+                            <span>عظام</span>
+                            <span>طوارئ</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="location-card reveal" style="transition-delay: 0.2s;">
+                    <div class="location-img" style="background: linear-gradient(135deg, #1E40AF, #1E3A5F);">
+                        <i class="fas fa-clinic-medical"></i>
+                        <span class="location-tag">مركز طبي</span>
+                    </div>
+                    <div class="location-info">
+                        <h3>مركز الإسكندرية الطبي</h3>
+                        <div class="loc-address">
+                            <i class="fas fa-map-marker-alt"></i>
+                            الإسكندرية، سموحة
+                        </div>
+                        <div class="location-tags">
+                            <span>أمراض باطنة</span>
+                            <span>أطفال</span>
+                            <span>نساء وتوليد</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="location-card reveal" style="transition-delay: 0.3s;">
+                    <div class="location-img" style="background: linear-gradient(135deg, #D4A843, #92400E);">
+                        <i class="fas fa-hospital"></i>
+                        <span class="location-tag">مستشفى</span>
+                    </div>
+                    <div class="location-info">
+                        <h3>مستشفى الدلتا التخصصي</h3>
+                        <div class="loc-address">
+                            <i class="fas fa-map-marker-alt"></i>
+                            المنصورة، حي الجامعة
+                        </div>
+                        <div class="location-tags">
+                            <span>مخ وأعصاب</span>
+                            <span>عيون</span>
+                            <span>أنف وأذن</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="location-card reveal" style="transition-delay: 0.4s;">
+                    <div class="location-img" style="background: linear-gradient(135deg, #8B5CF6, #4C1D95);">
+                        <i class="fas fa-clinic-medical"></i>
+                        <span class="location-tag">مركز طبي</span>
+                    </div>
+                    <div class="location-info">
+                        <h3>مركز الصعيد التخصصي</h3>
+                        <div class="loc-address">
+                            <i class="fas fa-map-marker-alt"></i>
+                            أسيوط، المنطقة الطبية
+                        </div>
+                        <div class="location-tags">
+                            <span>قلب</span>
+                            <span>أوعية دموية</span>
+                            <span>جراحة</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="location-card reveal" style="transition-delay: 0.5s;">
+                    <div class="location-img" style="background: linear-gradient(135deg, #EC4899, #831843);">
+                        <i class="fas fa-hospital-alt"></i>
+                        <span class="location-tag">مستشفى</span>
+                    </div>
+                    <div class="location-info">
+                        <h3>مستشفى البحر الأحمر</h3>
+                        <div class="loc-address">
+                            <i class="fas fa-map-marker-alt"></i>
+                            الغردقة، الممشى السياحي
+                        </div>
+                        <div class="location-tags">
+                            <span>طوارئ</span>
+                            <span>جراحة</span>
+                            <span>تجميل</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="location-card reveal" style="transition-delay: 0.6s;">
+                    <div class="location-img" style="background: linear-gradient(135deg, #EF4444, #7F1D1D);">
+                        <i class="fas fa-clinic-medical"></i>
+                        <span class="location-tag">مركز طبي</span>
+                    </div>
+                    <div class="location-info">
+                        <h3>مركز الأقصر الصحي</h3>
+                        <div class="loc-address">
+                            <i class="fas fa-map-marker-alt"></i>
+                            الأقصر، شارع خالد بن الوليد
+                        </div>
+                        <div class="location-tags">
+                            <span>باطنة</span>
+                            <span>كلى</span>
+                            <span>مسالك بولية</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ TEAM SECTION ============ -->
+    <section class="team" id="team">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge">
+                    <i class="fas fa-users"></i>
+                    <span>فريق القيادة</span>
+                </div>
+                <h2>العقول <span class="highlight">المبدعة</span> خلف نجاحنا</h2>
+                <p>نخبة من أفضل الخبراء والمتخصصين في إدارة المنشآت الصحية</p>
+            </div>
+
+            <div class="team-grid">
+                <div class="team-card reveal" style="transition-delay: 0.1s;">
+                    <div class="team-avatar">👨‍⚕️</div>
+                    <h3>د. أحمد محمد حسن</h3>
+                    <div class="role">الرئيس التنفيذي - CEO</div>
+                    <div class="bio">خبرة أكثر من 20 عاماً في إدارة المستشفيات، حاصل على MBA من جامعة هارفارد</div>
+                    <div class="team-socials">
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fas fa-envelope"></i></a>
+                    </div>
+                </div>
+
+                <div class="team-card reveal" style="transition-delay: 0.2s;">
+                    <div class="team-avatar">👩‍⚕️</div>
+                    <h3>د. سارة عبد الرحمن</h3>
+                    <div class="role">المدير الطبي - CMO</div>
+                    <div class="bio">استشاري طب الأسرة، خبيرة في الجودة الصحية ومعايير JCI الدولية</div>
+                    <div class="team-socials">
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fas fa-envelope"></i></a>
+                    </div>
+                </div>
+
+                <div class="team-card reveal" style="transition-delay: 0.3s;">
+                    <div class="team-avatar">👨‍💼</div>
+                    <h3>م. خالد إبراهيم</h3>
+                    <div class="role">مدير العمليات - COO</div>
+                    <div class="bio">خبير في التشغيل والإدارة التنفيذية للمنشآت الصحية الكبرى</div>
+                    <div class="team-socials">
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fas fa-envelope"></i></a>
+                    </div>
+                </div>
+
+                <div class="team-card reveal" style="transition-delay: 0.4s;">
+                    <div class="team-avatar">👩‍💻</div>
+                    <h3>م. نورهان أحمد</h3>
+                    <div class="role">مدير التحول الرقمي - CTO</div>
+                    <div class="bio">متخصصة في أنظمة المعلومات الصحية والتحول الرقمي للمستشفيات</div>
+                    <div class="team-socials">
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fas fa-envelope"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ TESTIMONIALS SECTION ============ -->
+    <section class="testimonials" id="testimonials">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge">
+                    <i class="fas fa-quote-right"></i>
+                    <span>آراء العملاء</span>
+                </div>
+                <h2>ماذا يقول <span class="highlight">عملاؤنا</span> عنا</h2>
+                <p>شهادات حقيقية من مديري المستشفيات والمراكز الطبية التي نديرها</p>
+            </div>
+
+            <div class="testimonials-slider">
+                <div class="testimonial-card reveal" style="transition-delay: 0.1s;">
+                    <div class="testimonial-stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="quote-icon"><i class="fas fa-quote-right"></i></div>
+                    <p class="quote-text">
+                        "منذ تعاقدنا مع ميديكال بلس، ارتفع مستوى الخدمة بنسبة 40% وزادت نسبة
+                        رضا المرضى بشكل ملحوظ. فريق محترف ومتفانٍ في العمل."
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="avatar">👨‍⚕️</div>
+                        <div>
+                            <div class="name">د. محمد عبد العزيز</div>
+                            <div class="position">مدير مستشفى القاهرة التخصصي</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card reveal" style="transition-delay: 0.2s;">
+                    <div class="testimonial-stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="quote-icon"><i class="fas fa-quote-right"></i></div>
+                    <p class="quote-text">
+                        "التحول الرقمي الذي نفذته الشركة غيّر طريقة عملنا بالكامل. أصبحت
+                        العمليات أسرع وأدق، ووفرنا الكثير من الوقت والجهد."
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="avatar">👩‍⚕️</div>
+                        <div>
+                            <div class="name">د. فاطمة الزهراء</div>
+                            <div class="position">مديرة مركز الإسكندرية الطبي</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card reveal" style="transition-delay: 0.3s;">
+                    <div class="testimonial-stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                    </div>
+                    <div class="quote-icon"><i class="fas fa-quote-right"></i></div>
+                    <p class="quote-text">
+                        "حصلنا على اعتماد JCI بفضل جهود فريق الجودة في ميديكال بلس.
+                        كانت العملية منظمة ومدروسة من البداية للنهاية."
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="avatar">👨‍💼</div>
+                        <div>
+                            <div class="name">أ. أحمد سالم</div>
+                            <div class="position">رئيس مجلس إدارة مستشفى الدلتا</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ CTA SECTION ============ -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-box reveal">
+                <h2>هل أنت مستعد لتطوير منشأتك الصحية؟</h2>
+                <p>تواصل معنا اليوم واحصل على استشارة مجانية من خبرائنا لتقييم احتياجات منشأتك</p>
+                <div class="cta-buttons">
+                    <button class="btn-white" onclick="scrollToSection('#contact')">
+                        <i class="fas fa-paper-plane"></i>
+                        اطلب استشارة مجانية
+                    </button>
+                    <a href="tel:+201234567890" class="btn-ghost">
+                        <i class="fas fa-phone-alt"></i>
+                        اتصل بنا الآن
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ FAQ SECTION ============ -->
+    <section class="faq" id="faq">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge">
+                    <i class="fas fa-question-circle"></i>
+                    <span>أسئلة شائعة</span>
+                </div>
+                <h2>إجابات على <span class="highlight">أسئلتك</span></h2>
+                <p>أجوبة واضحة على الأسئلة الأكثر شيوعاً حول خدماتنا</p>
+            </div>
+
+            <div class="faq-list">
+                <div class="faq-item active">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>ما هي الخدمات التي تقدمها ميديكال بلس؟</span>
+                        <div class="faq-toggle"><i class="fas fa-chevron-down"></i></div>
+                    </div>
+                    <div class="faq-answer" style="max-height: 200px;">
+                        <div class="faq-answer-inner">
+                            نقدم حزمة شاملة من الخدمات تشمل: الإدارة التشغيلية الكاملة للمستشفيات، التخطيط الاستراتيجي، إدارة الكوادر الطبية، الإدارة المالية، الجودة والاعتماد، التحول الرقمي، إدارة سلاسل الإمداد، التدريب والتطوير، والتسويق الصحي.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>ما هي المناطق التي تغطيها خدماتكم في مصر؟</span>
+                        <div class="faq-toggle"><i class="fas fa-chevron-down"></i></div>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">
+                            نغطي جميع أنحاء جمهورية مصر العربية بما يشمل القاهرة الكبرى، الإسكندرية، محافظات الدلتا، الصعيد، البحر الأحمر، وسيناء. لدينا أكثر من 150 منشأة صحية في 25 محافظة.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>كم تستغرق عملية بدء إدارة منشأة صحية جديدة؟</span>
+                        <div class="faq-toggle"><i class="fas fa-chevron-down"></i></div>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">
+                            تختلف المدة حسب حجم المنشأة ونوع الخدمات المطلوبة. عادةً تستغرق مرحلة التقييم والتخطيط من 2-4 أسابيع، ثم يبدأ التنفيذ الفعلي خلال الشهر الأول مع خطة تطوير متكاملة لمدة 6-12 شهر.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>هل تقدمون استشارات مجانية قبل التعاقد؟</span>
+                        <div class="faq-toggle"><i class="fas fa-chevron-down"></i></div>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">
+                            نعم! نقدم استشارة أولية مجانية تشمل زيارة ميدانية للمنشأة وتقييم أولي للوضع الحالي وتقديم مقترح شامل بالحلول والتكاليف المتوقعة دون أي التزام.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>ما هي الاعتمادات والشهادات التي تحملها الشركة؟</span>
+                        <div class="faq-toggle"><i class="fas fa-chevron-down"></i></div>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">
+                            نحمل اعتمادات عديدة تشمل: JCI (اللجنة الدولية المشتركة)، ISO 9001 لإدارة الجودة، ISO 45001 للسلامة المهنية، بالإضافة إلى شهادات CBAHI واعتمادات محلية من وزارة الصحة المصرية.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>كيف يمكنني التواصل معكم لبدء التعاون؟</span>
+                        <div class="faq-toggle"><i class="fas fa-chevron-down"></i></div>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">
+                            يمكنك التواصل معنا عبر نموذج الاتصال في الموقع، أو الاتصال على الرقم 01234567890، أو إرسال بريد إلكتروني إلى info@medicalplus.com، أو عبر واتساب. فريقنا متاح على مدار الساعة للرد على استفساراتك.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ CONTACT SECTION ============ -->
+    <section class="contact" id="contact">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge">
+                    <i class="fas fa-envelope"></i>
+                    <span>تواصل معنا</span>
+                </div>
+                <h2>نحن هنا <span class="highlight">لمساعدتك</span></h2>
+                <p>تواصل معنا وسيقوم فريقنا بالرد عليك في أسرع وقت ممكن</p>
+            </div>
+
+            <div class="contact-grid">
+                <div class="contact-info-cards">
+                    <div class="contact-info-card reveal-left" style="transition-delay: 0.1s;">
+                        <div class="ci-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div>
+                            <h4>العنوان</h4>
+                            <p>القاهرة، مدينة نصر، شارع عباس العقاد</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-info-card reveal-left" style="transition-delay: 0.2s;">
+                        <div class="ci-icon">
+                            <i class="fas fa-phone-alt"></i>
+                        </div>
+                        <div>
+                            <h4>الهاتف</h4>
+                            <p dir="ltr">+20 123 456 7890</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-info-card reveal-left" style="transition-delay: 0.3s;">
+                        <div class="ci-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div>
+                            <h4>البريد الإلكتروني</h4>
+                            <p>info@medicalplus.com</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-info-card reveal-left" style="transition-delay: 0.4s;">
+                        <div class="ci-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div>
+                            <h4>ساعات العمل</h4>
+                            <p>السبت - الخميس: 9 صباحاً - 6 مساءً</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-info-card reveal-left" style="transition-delay: 0.5s;">
+                        <div class="ci-icon" style="background: var(--gradient-3);">
+                            <i class="fab fa-whatsapp"></i>
+                        </div>
+                        <div>
+                            <h4>واتساب</h4>
+                            <p dir="ltr">+20 123 456 7890</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-form-wrapper reveal-right">
+                    <h3 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 25px;">
+                        أرسل لنا رسالة
+                    </h3>
+                    <form id="contactForm" onsubmit="handleSubmit(event)">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>الاسم الكامل</label>
+                                <input type="text" placeholder="أدخل اسمك الكامل" required>
+                            </div>
+                            <div class="form-group">
+                                <label>رقم الهاتف</label>
+                                <input type="tel" placeholder="01xxxxxxxxx" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>البريد الإلكتروني</label>
+                                <input type="email" placeholder="example@email.com" required>
+                            </div>
+                            <div class="form-group">
+                                <label>نوع المنشأة</label>
+                                <select required>
+                                    <option value="">اختر نوع المنشأة</option>
+                                    <option value="hospital">مستشفى</option>
+                                    <option value="center">مركز طبي</option>
+                                    <option value="clinic">عيادة</option>
+                                    <option value="lab">معمل تحاليل</option>
+                                    <option value="pharmacy">صيدلية</option>
+                                    <option value="other">أخرى</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>الخدمة المطلوبة</label>
+                            <select required>
+                                <option value="">اختر الخدمة</option>
+                                <option value="full">إدارة شاملة</option>
+                                <option value="consulting">استشارات</option>
+                                <option value="quality">جودة واعتماد</option>
+                                <option value="digital">تحول رقمي</option>
+                                <option value="training">تدريب</option>
+                                <option value="hr">إدارة كوادر</option>
+                                <option value="financial">إدارة مالية</option>
+                                <option value="other">أخرى</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>رسالتك</label>
+                            <textarea placeholder="اكتب رسالتك أو استفسارك هنا..." rows="5" required></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                            <i class="fas fa-paper-plane"></i>
+                            إرسال الرسالة
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ FOOTER ============ -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="#" class="logo">
+                        <div class="logo-icon">
+                                                        <i class="fas fa-hospital"></i>
+                        </div>
+                        <div>
+                            <div class="logo-text"><span>ميديكال بلس</span></div>
+                            <div class="logo-sub">MEDICAL PLUS</div>
+                        </div>
+                    </a>
+                    <p>
+                        شركة رائدة في إدارة المستشفيات والمراكز الطبية في مصر.
+                        نقدم حلولاً إدارية متكاملة ترتقي بجودة الخدمة الصحية
+                        وتحقق أعلى معايير الرعاية الطبية العالمية.
+                    </p>
+                    <div class="footer-socials">
+                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+
+                <div class="footer-col">
+                    <h4>روابط سريعة</h4>
+                    <ul>
+                        <li><a href="#home"><i class="fas fa-chevron-left" style="font-size:0.6rem"></i> الرئيسية</a></li>
+                        <li><a href="#about"><i class="fas fa-chevron-left" style="font-size:0.6rem"></i> من نحن</a></li>
+                        <li><a href="#services"><i class="fas fa-chevron-left" style="font-size:0.6rem"></i> خدماتنا</a></li>
+                        <li><a href="#locations"><i class="fas fa-chevron-left" style="font-size:0.6rem"></i> مواقعنا</a></li>
+                        <li><a href="#team"><i class="fas fa-chevron-left" style="font-size:0.6rem"></i> فريقنا</a></li>
+                        <li><a href="#contact"><i class="fas fa-chevron-left" style="font-size:0.6rem"></i> تواصل معنا</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h4>خدماتنا</h4>
+                    <ul>
+                        <li><a href="#services"><i class="fas fa-chevron-left" style="font-size:0.6rem"></i> إدارة المستشفيات</a></li>
+                        <li><a href="#services"><i class="fas fa-chevron-left" style="font-size:0.6rem"></i> التخطيط الاستراتيجي</a></li>
+                        <li><a href="#services"><i class="fas fa-chevron-left" style="font-size:0.6rem"></i> الجودة والاعتماد</a></li>
+                        <li><a href="#services"><i class="fas fa-chevron-left" style="font-size:0.6rem"></i> التحول الرقمي</a></li>
+                        <li><a href="#services"><i class="fas fa-chevron-left" style="font-size:0.6rem"></i> التدريب والتطوير</a></li>
+                        <li><a href="#services"><i class="fas fa-chevron-left" style="font-size:0.6rem"></i> التسويق الصحي</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h4>تواصل معنا</h4>
+                    <ul>
+                        <li>
+                            <a href="#">
+                                <i class="fas fa-map-marker-alt" style="color: var(--accent); width: 20px;"></i>
+                                القاهرة، مدينة نصر
+                            </a>
+                        </li>
+                        <li>
+                            <a href="tel:+201234567890">
+                                <i class="fas fa-phone-alt" style="color: var(--accent); width: 20px;"></i>
+                                01234567890
+                            </a>
+                        </li>
+                        <li>
+                            <a href="mailto:info@medicalplus.com">
+                                <i class="fas fa-envelope" style="color: var(--accent); width: 20px;"></i>
+                                info@medicalplus.com
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                <i class="fas fa-clock" style="color: var(--accent); width: 20px;"></i>
+                                السبت - الخميس: 9ص - 6م
+                            </a>
+                        </li>
+                    </ul>
+
+                    <!-- Newsletter -->
+                    <div style="margin-top: 20px;">
+                        <h4 style="font-size: 0.95rem; margin-bottom: 12px;">اشترك في نشرتنا البريدية</h4>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="email" placeholder="بريدك الإلكتروني" style="
+                                flex: 1;
+                                padding: 12px 16px;
+                                background: var(--glass);
+                                border: 1px solid var(--glass-border);
+                                border-radius: 12px;
+                                color: var(--white);
+                                font-family: 'Cairo', sans-serif;
+                                font-size: 0.85rem;
+                                outline: none;
+                            ">
+                            <button style="
+                                padding: 12px 18px;
+                                background: var(--gradient-2);
+                                border: none;
+                                border-radius: 12px;
+                                color: white;
+                                cursor: pointer;
+                                font-size: 1rem;
+                                transition: all 0.3s;
+                            " onclick="subscribeNewsletter()">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>
+                    © 2024 <span style="color: var(--accent); font-weight: 700;">ميديكال بلس</span>.
+                    جميع الحقوق محفوظة. صُنع بـ ❤️ في مصر
+                </p>
+                <div class="footer-bottom-links">
+                    <a href="#">سياسة الخصوصية</a>
+                    <a href="#">الشروط والأحكام</a>
+                    <a href="#">خريطة الموقع</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ============ SCROLL TO TOP ============ -->
+    <button class="scroll-top" id="scrollTop" onclick="scrollToTop()">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <!-- ============ WHATSAPP FLOAT ============ -->
+    <a href="https://wa.me/201234567890" target="_blank" class="whatsapp-float" aria-label="WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <!-- ============ NOTIFICATION TOAST ============ -->
+    <div id="toast" style="
+        position: fixed;
+        top: 100px;
+        right: 30px;
+        background: var(--glass);
+        border: 1px solid var(--accent);
+        backdrop-filter: blur(20px);
+        padding: 20px 30px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        z-index: 99999;
+        transform: translateX(150%);
+        transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        max-width: 400px;
+    ">
+        <div style="
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--gradient-2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        ">
+            <i class="fas fa-check"></i>
+        </div>
+        <div>
+            <div style="font-weight: 700; font-size: 0.95rem;" id="toastTitle">تم بنجاح!</div>
+            <div style="color: var(--gray); font-size: 0.8rem;" id="toastMessage">تم إرسال رسالتك بنجاح</div>
+        </div>
+        <button onclick="hideToast()" style="
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 5px;
+        ">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <!-- ============ AOS Library ============ -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+    <!-- ============ MAIN JAVASCRIPT ============ -->
+    <script>
+        // ============ PRELOADER ============
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                document.getElementById('preloader').classList.add('loaded');
+                document.body.style.overflow = 'auto';
+                initAnimations();
+            }, 2000);
+        });
+
+        // ============ CUSTOM CURSOR ============
+        const cursorDot = document.getElementById('cursorDot');
+        const cursorRing = document.getElementById('cursorRing');
+
+        if (window.innerWidth > 768) {
+            document.addEventListener('mousemove', (e) => {
+                cursorDot.style.left = e.clientX - 4 + 'px';
+                cursorDot.style.top = e.clientY - 4 + 'px';
+                
+                setTimeout(() => {
+                    cursorRing.style.left = e.clientX - 20 + 'px';
+                    cursorRing.style.top = e.clientY - 20 + 'px';
+                }, 80);
+            });
+
+            // Hover effect on interactive elements
+            const hoverElements = document.querySelectorAll('a, button, .service-card, .team-card, .location-card, .faq-question, .about-feature, .contact-info-card');
+            hoverElements.forEach(el => {
+                el.addEventListener('mouseenter', () => cursorRing.classList.add('hover'));
+                el.addEventListener('mouseleave', () => cursorRing.classList.remove('hover'));
+            });
+        }
+
+        // ============ PARTICLES ============
+        function createParticles() {
+            const container = document.getElementById('particles-container');
+            const particleCount = 30;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+
+                const size = Math.random() * 6 + 2;
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDuration = Math.random() * 15 + 10 + 's';
+                particle.style.animationDelay = Math.random() * 10 + 's';
+
+                const colors = ['var(--accent)', 'var(--secondary)', 'var(--gold)'];
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+
+                container.appendChild(particle);
+            }
+        }
+        createParticles();
+
+        // ============ NAVBAR ============
+        const navbar = document.getElementById('navbar');
+        const scrollTop = document.getElementById('scrollTop');
+
+        window.addEventListener('scroll', () => {
+            // Navbar scroll effect
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+
+            // Scroll to top button
+            if (window.scrollY > 500) {
+                scrollTop.classList.add('visible');
+            } else {
+                scrollTop.classList.remove('visible');
+            }
+
+            // Active nav link
+            updateActiveNav();
+
+            // Reveal animations
+            revealOnScroll();
+        });
+
+        // ============ ACTIVE NAV LINK ============
+        function updateActiveNav() {
+            const sections = document.querySelectorAll('section[id]');
+            const navLinks = document.querySelectorAll('.nav-links a:not(.nav-cta)');
+
+            let current = '';
+
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop - 200;
+                if (window.scrollY >= sectionTop) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        // ============ MOBILE MENU ============
+        const menuToggle = document.getElementById('menuToggle');
+        const mobileMenu = document.getElementById('mobileMenu');
+
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            mobileMenu.classList.toggle('active');
+            document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : 'auto';
+        });
+
+        function closeMobile() {
+            menuToggle.classList.remove('active');
+            mobileMenu.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // ============ SMOOTH SCROLL ============
+        function scrollToSection(selector) {
+            const element = document.querySelector(selector);
+            if (element) {
+                const offset = 80;
+                const elementPosition = element.getBoundingClientRect().top + window.scrollY;
+                window.scrollTo({
+                    top: elementPosition - offset,
+                    behavior: 'smooth'
+                });
+            }
+        }
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ============ REVEAL ON SCROLL ============
+        function revealOnScroll() {
+            const reveals = document.querySelectorAll('.reveal, .reveal-left, .reveal-right');
+
+            reveals.forEach(el => {
+                const windowHeight = window.innerHeight;
+                const elementTop = el.getBoundingClientRect().top;
+                const elementVisible = 100;
+
+                if (elementTop < windowHeight - elementVisible) {
+                    el.classList.add('active');
+                }
+            });
+        }
+
+        // ============ COUNTER ANIMATION ============
+        function animateCounters() {
+            const counters = document.querySelectorAll('.count, .stat-number[data-target]');
+
+            counters.forEach(counter => {
+                const target = parseInt(counter.getAttribute('data-target'));
+                if (!target) return;
+
+                const duration = 2000;
+                const step = target / (duration / 16);
+                let current = 0;
+                let hasAnimated = false;
+
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting && !hasAnimated) {
+                            hasAnimated = true;
+                            const timer = setInterval(() => {
+                                current += step;
+                                if (current >= target) {
+                                    current = target;
+                                    clearInterval(timer);
+                                }
+
+                                if (target >= 10000) {
+                                    counter.textContent = Math.floor(current).toLocaleString() + '+';
+                                } else if (target >= 100) {
+                                    counter.textContent = Math.floor(current) + '+';
+                                } else {
+                                    counter.textContent = Math.floor(current) + (counter.closest('.stat-item') ? '' : '+');
+                                }
+                            }, 16);
+                        }
+                    });
+                }, { threshold: 0.5 });
+
+                observer.observe(counter);
+            });
+        }
+
+        // ============ 3D CARD TILT ============
+        const hero3dCard = document.getElementById('hero3dCard');
+
+        if (hero3dCard && window.innerWidth > 1024) {
+            hero3dCard.addEventListener('mousemove', (e) => {
+                const rect = hero3dCard.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = (y - centerY) / 20;
+                const rotateY = (centerX - x) / 20;
+
+                hero3dCard.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
+
+            hero3dCard.addEventListener('mouseleave', () => {
+                hero3dCard.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
+            });
+        }
+
+        // ============ FAQ ACCORDION ============
+        function toggleFaq(element) {
+            const faqItem = element.parentElement;
+            const answer = faqItem.querySelector('.faq-answer');
+            const answerInner = faqItem.querySelector('.faq-answer-inner');
+            const isActive = faqItem.classList.contains('active');
+
+            // Close all FAQ items
+            document.querySelectorAll('.faq-item').forEach(item => {
+                item.classList.remove('active');
+                item.querySelector('.faq-answer').style.maxHeight = '0';
+            });
+
+            // Open clicked item if it wasn't active
+            if (!isActive) {
+                faqItem.classList.add('active');
+                answer.style.maxHeight = answerInner.scrollHeight + 40 + 'px';
+            }
+        }
+
+        // ============ FORM SUBMIT ============
+        function handleSubmit(event) {
+            event.preventDefault();
+
+            // Show loading
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإرسال...';
+            submitBtn.disabled = true;
+
+            // Simulate sending
+            setTimeout(() => {
+                submitBtn.innerHTML = '<i class="fas fa-check"></i> تم الإرسال بنجاح!';
+                submitBtn.style.background = 'linear-gradient(135deg, #10B981, #059669)';
+
+                showToast('تم بنجاح! ✅', 'تم إرسال رسالتك بنجاح. سنتواصل معك قريباً.');
+
+                // Reset form
+                setTimeout(() => {
+                    event.target.reset();
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.style.background = '';
+                    submitBtn.disabled = false;
+                }, 3000);
+            }, 2000);
+        }
+
+        // ============ TOAST NOTIFICATION ============
+        function showToast(title, message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastTitle').textContent = title;
+            document.getElementById('toastMessage').textContent = message;
+            toast.style.transform = 'translateX(0)';
+
+            setTimeout(() => {
+                hideToast();
+            }, 5000);
+        }
+
+        function hideToast() {
+            document.getElementById('toast').style.transform = 'translateX(150%)';
+        }
+
+        // ============ NEWSLETTER ============
+        function subscribeNewsletter() {
+            showToast('تم الاشتراك! 📧', 'شكراً لاشتراكك في نشرتنا البريدية.');
+        }
+
+        // ============ TYPING EFFECT FOR HERO ============
+        function initTypingEffect() {
+            const words = ['الرعاية الصحية', 'إدارة المستشفيات', 'جودة الخدمة', 'مستقبل الطب'];
+            let wordIndex = 0;
+            let charIndex = 0;
+            let isDeleting = false;
+
+            const goldSpan = document.querySelector('.hero h1 .gold');
+            if (!goldSpan) return;
+
+            function type() {
+                const currentWord = words[wordIndex];
+
+                if (isDeleting) {
+                    goldSpan.textContent = currentWord.substring(0, charIndex - 1);
+                    charIndex--;
+                } else {
+                    goldSpan.textContent = currentWord.substring(0, charIndex + 1);
+                    charIndex++;
+                }
+
+                let typeSpeed = isDeleting ? 50 : 100;
+
+                if (!isDeleting && charIndex === currentWord.length) {
+                    typeSpeed = 2000;
+                    isDeleting = true;
+                } else if (isDeleting && charIndex === 0) {
+                    isDeleting = false;
+                    wordIndex = (wordIndex + 1) % words.length;
+                    typeSpeed = 500;
+                }
+
+                setTimeout(type, typeSpeed);
+            }
+
+            setTimeout(type, 2500);
+        }
+
+        // ============ SMOOTH ANCHOR LINKS ============
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    const offset = 80;
+                    const targetPosition = target.getBoundingClientRect().top + window.scrollY - offset;
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // ============ LOCATION PIN HOVER EFFECT ============
+        document.querySelectorAll('.location-pin-btn, [onclick*="showLocation"]').forEach(pin => {
+            pin.addEventListener('mouseenter', function() {
+                this.style.borderColor = 'var(--accent)';
+                this.style.background = 'rgba(13, 148, 136, 0.1)';
+                this.style.transform = 'translateY(-3px)';
+            });
+            pin.addEventListener('mouseleave', function() {
+                this.style.borderColor = 'var(--glass-border)';
+                this.style.background = 'var(--glass)';
+                this.style.transform = 'translateY(0)';
+            });
+        });
+
+        function showLocation(city) {
+            showToast('📍 ' + city, 'جاري تحميل تفاصيل المنشآت في هذه المنطقة...');
+        }
+
+        // ============ BUTTON RIPPLE EFFECT ============
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                ripple.classList.add('btn-ripple');
+                this.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+
+        // ============ SERVICE CARDS STAGGER ============
+        function animateServiceCards() {
+            const cards = document.querySelectorAll('.service-card');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry, index) => {
+                    if (entry.isIntersecting) {
+                        setTimeout(() => {
+                            entry.target.classList.add('active');
+                        }, index * 100);
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            cards.forEach(card => observer.observe(card));
+        }
+
+        // ============ PARALLAX EFFECT ============
+        window.addEventListener('scroll', () => {
+            const scrolled = window.scrollY;
+            const meshElements = document.querySelectorAll('.hero-mesh');
+
+            meshElements.forEach((mesh, index) => {
+                const speed = (index + 1) * 0.05;
+                mesh.style.transform = `translateY(${scrolled * speed}px)`;
+            });
+        });
+
+        // ============ LAZY LOADING SECTIONS ============
+        const lazyObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('loaded');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('section').forEach(section => {
+            lazyObserver.observe(section);
+        });
+
+        // ============ DARK/LIGHT MODE TOGGLE (Optional) ============
+        let isDarkMode = true;
+
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            if (!isDarkMode) {
+                document.documentElement.style.setProperty('--primary', '#F8FAFC');
+                document.documentElement.style.setProperty('--primary-light', '#FFFFFF');
+                document.documentElement.style.setProperty('--white', '#0F172A');
+                document.documentElement.style.setProperty('--gray', '#475569');
+                document.documentElement.style.setProperty('--glass', 'rgba(0, 0, 0, 0.03)');
+                document.documentElement.style.setProperty('--glass-border', 'rgba(0, 0, 0, 0.08)');
+            } else {
+                document.documentElement.style.setProperty('--primary', '#0A1628');
+                document.documentElement.style.setProperty('--primary-light', '#111D35');
+                document.documentElement.style.setProperty('--white', '#FFFFFF');
+                document.documentElement.style.setProperty('--gray', '#94A3B8');
+                document.documentElement.style.setProperty('--glass', 'rgba(255, 255, 255, 0.05)');
+                document.documentElement.style.setProperty('--glass-border', 'rgba(255, 255, 255, 0.1)');
+            }
+        }
+
+        // ============ KEYBOARD NAVIGATION ============
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeMobile();
+                hideToast();
+            }
+        });
+
+        // ============ PERFORMANCE: REDUCE MOTION ============
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+        if (prefersReducedMotion.matches) {
+            document.querySelectorAll('.particle').forEach(p => p.remove());
+            document.querySelectorAll('[style*="animation"]').forEach(el => {
+                el.style.animation = 'none';
+            });
+        }
+
+        // ============ INIT ALL ANIMATIONS ============
+        function initAnimations() {
+            animateCounters();
+            initTypingEffect();
+            animateServiceCards();
+            revealOnScroll();
+
+            // Initialize AOS
+            if (typeof AOS !== 'undefined') {
+                AOS.init({
+                    duration: 800,
+                    easing: 'ease-out-cubic',
+                    once: true,
+                    offset: 100
+                });
+            }
+        }
+
+        // ============ PAGE VISIBILITY ============
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                document.title = '👋 ارجع لينا | ميديكال بلس';
+            } else {
+                document.title = 'ميديكال بلس | إدارة المستشفيات والمراكز الطبية';
+            }
+        });
+
+        // ============ CONSOLE EASTER EGG ============
+        console.log('%c🏥 ميديكال بلس', 'font-size: 30px; font-weight: bold; color: #0D9488;');
+        console.log('%cشركة رائدة في إدارة المستشفيات والمراكز الطبية', 'font-size: 14px; color: #94A3B8;');
+        console.log('%c💼 نبحث عن مواهب! تواصل معنا: careers@medicalplus.com', 'font-size: 12px; color: #D4A843;');
+
+        // ============ SERVICE WORKER REGISTRATION (PWA) ============
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                // navigator.serviceWorker.register('/sw.js');
+            });
+        }
+
+        // ============ SCROLL PROGRESS BAR ============
+        const progressBar = document.createElement('div');
+        progressBar.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--secondary), var(--gold));
+            z-index: 100001;
+            transition: width 0.1s;
+            border-radius: 0 5px 5px 0;
+        `;
+        document.body.appendChild(progressBar);
+
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            progressBar.style.width = scrolled + '%';
+        });
+
+        // ============ MAGNETIC EFFECT ON BUTTONS ============
+        if (window.innerWidth > 1024) {
+            document.querySelectorAll('.btn-primary, .nav-cta').forEach(btn => {
+                btn.addEventListener('mousemove', (e) => {
+                    const rect = btn.getBoundingClientRect();
+                    const x = e.clientX - rect.left - rect.width / 2;
+                    const y = e.clientY - rect.top - rect.height / 2;
+                    btn.style.transform = `translate(${x * 0.15}px, ${y * 0.15}px)`;
+                });
+
+                btn.addEventListener('mouseleave', () => {
+                    btn.style.transform = 'translate(0, 0)';
+                });
+            });
+        }
+
+        // ============ IMAGE LAZY LOADING ============
+        if ('IntersectionObserver' in window) {
+            const imgObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        if (img.dataset.src) {
+                            img.src = img.dataset.src;
+                            img.removeAttribute('data-src');
+                        }
+                        imgObserver.unobserve(img);
+                    }
+                });
+            });
+
+            document.querySelectorAll('img[data-src]').forEach(img => {
+                imgObserver.observe(img);
+            });
+        }
+
+        // ============ AUTO-HIDE NAVBAR ON SCROLL DOWN ============
+        let lastScrollTop = 0;
+        const navbarHeight = navbar.offsetHeight;
+
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.scrollY;
+
+            if (scrollTop > lastScrollTop && scrollTop > navbarHeight * 2) {
+                // Scroll Down - hide navbar
+                navbar.style.transform = 'translateY(-100%)';
+            } else {
+                // Scroll Up - show navbar
+                navbar.style.transform = 'translateY(0)';
+            }
+
+            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+        }, { passive: true });
+
+    </script>
+
+</body>
+</html>
